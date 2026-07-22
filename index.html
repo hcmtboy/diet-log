@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f766e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="体づくりログ">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAADwElEQVR4nO3dy27bRhQGYNLQNvSbdlenBRJLboEkcp5WfoFkoS6CIH9qDm9H5veBG19kD2d+n/ERdenvH/7o4FcO37YeAWXdbT0A6hIOIuEgEg6iQ9dvPQSqOnTSQWBbIRIOIuEgEg4i3QqRykGklSVSOYiEg0g4iHQrRCoHkXAQaWWJVA4i4SDSrRCpHETCQSQcRFpZIpWDSLdCpHIQCQeRcBAJB5FWlki3QmRbIRIOIuEgEg4i4SA6dL12hV9TOYiEg0g4iISDSDiIXFshclWWyLZCJBxEwkEkHES6FSKVg2jtVvZyOqcv3Z/erzmSyorMUj8cH9b5Tb854R/tPCKlZmmlbeWV5zzqO9+earO0RjjGnsk+81Fwlu66vlv0aDuHy+m89MBKHTVnadnKcTm2p3vKbW9L2VnSyhLdLVeVpof6cjxvX/EXPirPkspBJBxE81xbuTx++fHD+3/+muGHXs0xvLev77oFVqEfnibd1/bTgGY3Z85KqjyBh+ZbLn1WzOK6TG0RafyfQzJuS9t61X+AcfHh3ZDRM9lSOS6PnxtuxbYaVq38I8GKD++2jJzM0ZXj8lHZuFVj186dYETCQSQcRFrZvRkxn7qVnRkzn7YVIuEgar/wto7Lh09bD2G/VA4i4SDyCsY7M2a5VQ4i4SASDiLhIBIOIt3KzoxZ7sO35cZBPaOW27ZCJBxEwkEkHETlHwnGvMYsd/3HkDIvF96Yg3AQVX+Y4PD549ZDWNbL3/9uPYRI5SAq360UH97N8bwVZlG/lS0+vJujlWUOwkEkHESj329lOD+uOsDtX7p+4WNFw/lx1NhUDqKWcKxdPJhDw6ppZfdj9Ew2bivD+dh2QzbRtl7tF96uv+/l/VPzT2AFU/6Mp15bGZ6PXde9PDz97ycb2VVe4TerMGUC57lk/9842NTsq6CVJRIOogXfOnR4Pk0c3PB82vr+y8WPyrOkchAt+172w9dT88iGr6et/6pXOsrO0uKVo+3Mp8zXLao5S2tsK2PPYW/JuCo4Syv9z/H6M9lnMq6qzVL/bt37r17+PKUv7TkWPykyS/27ya0Ub1X5562wHfdzEAkHkXAQCQeRcBB5BWMilYNIOIiEg0g4iISDyLUVovrPlWUzthUi4SASDiLhINKtEKkcRFpZIpWDSDiIhINIt0KkchAJB5FWlkjlIBIOIt0KkcpBJBxEwkGklSVSOYh0K0QqB5FwEAkHkXAQaWWJdCtEthUi4SASDiLhIBIOIq9gTKRyEAkHkXAQCQeRcBB9B3rXlL0sd6RdAAAAAElFTkSuQmCC">
+<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAADwElEQVR4nO3dy27bRhQGYNLQNvSbdlenBRJLboEkcp5WfoFkoS6CIH9qDm9H5veBG19kD2d+n/ERdenvH/7o4FcO37YeAWXdbT0A6hIOIuEgEg6iQ9dvPQSqOnTSQWBbIRIOIuEgEg4i3QqRykGklSVSOYiEg0g4iHQrRCoHkXAQaWWJVA4i4SDSrRCpHETCQSQcRFpZIpWDSLdCpHIQCQeRcBAJB5FWlki3QmRbIRIOIuEgEg4i4SA6dL12hV9TOYiEg0g4iISDSDiIXFshclWWyLZCJBxEwkEkHES6FSKVg2jtVvZyOqcv3Z/erzmSyorMUj8cH9b5Tb854R/tPCKlZmmlbeWV5zzqO9+earO0RjjGnsk+81Fwlu66vlv0aDuHy+m89MBKHTVnadnKcTm2p3vKbW9L2VnSyhLdLVeVpof6cjxvX/EXPirPkspBJBxE81xbuTx++fHD+3/+muGHXs0xvLev77oFVqEfnibd1/bTgGY3Z85KqjyBh+ZbLn1WzOK6TG0RafyfQzJuS9t61X+AcfHh3ZDRM9lSOS6PnxtuxbYaVq38I8GKD++2jJzM0ZXj8lHZuFVj186dYETCQSQcRFrZvRkxn7qVnRkzn7YVIuEgar/wto7Lh09bD2G/VA4i4SDyCsY7M2a5VQ4i4SASDiLhIBIOIt3KzoxZ7sO35cZBPaOW27ZCJBxEwkEkHETlHwnGvMYsd/3HkDIvF96Yg3AQVX+Y4PD549ZDWNbL3/9uPYRI5SAq360UH97N8bwVZlG/lS0+vJujlWUOwkEkHESj329lOD+uOsDtX7p+4WNFw/lx1NhUDqKWcKxdPJhDw6ppZfdj9Ew2bivD+dh2QzbRtl7tF96uv+/l/VPzT2AFU/6Mp15bGZ6PXde9PDz97ycb2VVe4TerMGUC57lk/9842NTsq6CVJRIOogXfOnR4Pk0c3PB82vr+y8WPyrOkchAt+172w9dT88iGr6et/6pXOsrO0uKVo+3Mp8zXLao5S2tsK2PPYW/JuCo4Syv9z/H6M9lnMq6qzVL/bt37r17+PKUv7TkWPykyS/27ya0Ub1X5562wHfdzEAkHkXAQCQeRcBB5BWMilYNIOIiEg0g4iISDyLUVovrPlWUzthUi4SASDiLhINKtEKkcRFpZIpWDSDiIhINIt0KkchAJB5FWlkjlIBIOIt0KkcpBJBxEwkGklSVSOYh0K0QqB5FwEAkHkXAQaWWJdCtEthUi4SASDiLhIBIOIq9gTKRyEAkHkXAQCQeRcBB9B3rXlL0sd6RdAAAAAElFTkSuQmCC">
+<title>体づくりログ</title>
+<style>
+  :root{
+    --bg:#f4f6f8; --card:#ffffff; --ink:#1a2b32; --sub:#5b6b72; --line:#e2e8ea;
+    --accent:#0f766e; --accent2:#0d9488; --good:#16a34a; --warn:#d97706; --bad:#dc2626;
+    --shadow:0 1px 3px rgba(15,40,50,.06),0 6px 18px rgba(15,40,50,.06);
+    --radius:16px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.6;
+    padding-bottom:76px;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:14px}
+  header.app{
+    position:sticky;top:0;z-index:20;background:linear-gradient(135deg,#0f766e,#0d9488);
+    color:#fff;padding:16px 16px 14px;border-radius:0 0 20px 20px;box-shadow:var(--shadow);
+  }
+  header.app h1{margin:0;font-size:17px;font-weight:700;letter-spacing:.02em}
+  header.app .sub{font-size:12px;opacity:.85;margin-top:2px}
+  .kpi-strip{display:flex;gap:8px;margin-top:12px}
+  .kpi-strip .k{flex:1;background:rgba(255,255,255,.14);border-radius:12px;padding:8px 6px;text-align:center}
+  .kpi-strip .k .v{font-size:17px;font-weight:700;line-height:1.1}
+  .kpi-strip .k .l{font-size:10px;opacity:.85;margin-top:2px}
+
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-top:14px}
+  .card h2{font-size:14px;margin:0 0 12px;font-weight:700;display:flex;align-items:center;gap:7px}
+  .card h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--accent2)}
+  label.f{display:block;font-size:12px;color:var(--sub);margin:0 0 5px;font-weight:600}
+  input,textarea,select{
+    width:100%;font-family:inherit;font-size:15px;color:var(--ink);background:#fbfcfd;
+    border:1.5px solid var(--line);border-radius:11px;padding:11px 12px;outline:none;
+  }
+  input:focus,textarea:focus,select:focus{border-color:var(--accent2);background:#fff}
+  textarea{resize:vertical;min-height:44px}
+  .row{display:flex;gap:10px}
+  .row>div{flex:1}
+  .field{margin-bottom:13px}
+
+  .weight-hero{display:flex;align-items:flex-end;gap:10px}
+  .weight-hero input{font-size:34px;font-weight:800;padding:6px 10px;text-align:center;letter-spacing:.02em}
+  .weight-hero .unit{font-size:16px;color:var(--sub);padding-bottom:12px;font-weight:700}
+
+  .toggle-group{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{
+    flex:1;min-width:70px;text-align:center;padding:10px 6px;border-radius:11px;border:1.5px solid var(--line);
+    background:#fbfcfd;font-size:13px;font-weight:600;color:var(--sub);cursor:pointer;user-select:none;transition:.12s
+  }
+  .chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .chip.small{font-size:12px;padding:8px 4px}
+
+  .stepper{display:flex;align-items:center;gap:0;border:1.5px solid var(--line);border-radius:11px;overflow:hidden;background:#fbfcfd}
+  .stepper button{width:46px;height:46px;border:none;background:#eef2f3;font-size:22px;color:var(--accent);font-weight:700;cursor:pointer}
+  .stepper button:active{background:#dfe8e8}
+  .stepper .val{flex:1;text-align:center;font-size:17px;font-weight:700}
+
+  .btn{
+    display:block;width:100%;padding:15px;border:none;border-radius:13px;background:var(--accent);
+    color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(15,118,110,.28)
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn.ghost{background:#eef2f3;color:var(--accent);box-shadow:none}
+  .btn.mini{padding:11px;font-size:14px}
+
+  .score-badge{text-align:center;padding:6px 0}
+  .score-badge .num{font-size:44px;font-weight:800;line-height:1}
+  .score-badge .lab{font-size:14px;font-weight:700;margin-top:4px}
+  .score-bars{margin-top:14px;display:grid;gap:9px}
+  .sb{display:grid;grid-template-columns:64px 1fr 44px;align-items:center;gap:9px;font-size:12px}
+  .sb .track{height:9px;background:#eef2f3;border-radius:6px;overflow:hidden}
+  .sb .fill{height:100%;border-radius:6px;background:var(--accent2)}
+  .sb .n{text-align:right;color:var(--sub);font-weight:700}
+
+  .coach{background:linear-gradient(135deg,#ecfdf5,#f0fdfa);border:1px solid #cdeee6;border-radius:14px;padding:14px;margin-top:14px}
+  .coach .t{font-size:12px;font-weight:800;color:var(--accent);letter-spacing:.04em;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .coach p{margin:0 0 6px;font-size:13.5px}
+  .coach p:last-child{margin-bottom:0}
+  .coach .praise{color:var(--good);font-weight:700}
+  .coach .watch{color:var(--warn);font-weight:700}
+
+  canvas{width:100%;display:block}
+  .hist-item{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+  .hist-item:last-child{border-bottom:none}
+  .hist-item .d{font-size:12px;color:var(--sub);width:52px;font-weight:600}
+  .hist-item .w{font-size:16px;font-weight:700;width:66px}
+  .hist-item .tags{flex:1;font-size:11px;color:var(--sub);display:flex;gap:5px;flex-wrap:wrap}
+  .tag{background:#eef2f3;border-radius:6px;padding:1px 6px}
+  .hist-item .sc{font-size:13px;font-weight:800;width:34px;text-align:right}
+
+  .insight-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px dashed var(--line);font-size:13px}
+  .insight-row:last-child{border-bottom:none}
+  .insight-row .lab{color:var(--sub)}
+  .insight-row .val{font-weight:700}
+  .insight-row .val small{font-weight:600;color:var(--sub);font-size:11px}
+  .pill{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
+  .pill.g{background:#dcfce7;color:#166534}
+  .pill.w{background:#fef3c7;color:#92400e}
+  .pill.b{background:#fee2e2;color:#991b1b}
+
+  .nav{
+    position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);
+    display:flex;z-index:30;box-shadow:0 -2px 12px rgba(15,40,50,.05);padding-bottom:env(safe-area-inset-bottom)
+  }
+  .nav button{
+    flex:1;border:none;background:none;padding:9px 0 8px;font-size:10.5px;color:var(--sub);font-weight:600;
+    cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:3px
+  }
+  .nav button.on{color:var(--accent)}
+  .nav .ic{font-size:20px;line-height:1}
+  .view{display:none}
+  .view.on{display:block;animation:fade .18s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .muted{color:var(--sub);font-size:12px}
+  .divider{height:1px;background:var(--line);margin:14px 0}
+  .toast{
+    position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);opacity:0;
+    background:#1a2b32;color:#fff;padding:11px 18px;border-radius:24px;font-size:13px;font-weight:600;
+    z-index:50;transition:.25s;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.2);max-width:90%;text-align:center
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .streak{display:inline-flex;align-items:center;gap:4px;background:#fff7ed;color:#c2410c;font-weight:800;font-size:12px;padding:3px 10px;border-radius:20px}
+  .goal-mini{font-size:11px;color:var(--sub);margin-top:3px}
+  .goal-mini b{color:var(--accent)}
+  .celebrate{font-size:12px;color:var(--good);font-weight:700;margin-top:6px}
+  a.link{color:var(--accent);font-weight:600}
+  .auto-summary{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
+  .ac-chip{background:#eef7f5;border:1px solid #d3e9e4;border-radius:9px;padding:6px 10px;font-size:12.5px;color:var(--ink)}
+  .ac-chip b{color:var(--accent);font-weight:700;font-size:11px;margin-right:3px}
+  .ac-chip.empty{background:#f6f7f8;color:var(--sub);border-color:var(--line)}
+  .miss-chip{display:inline-block;background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:9px;padding:5px 10px;font-size:12.5px;font-weight:700;margin:0 6px 6px 0;cursor:pointer}
+  .miss-chip:active{transform:translateY(1px)}
+  code{background:#eef2f3;border-radius:5px;padding:1px 5px;font-size:12px;word-break:break-all}
+  .i{width:1.05em;height:1.05em;vertical-align:-0.15em;margin-right:5px;flex:none;
+     fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .i-nav{width:22px;height:22px;margin:0;vertical-align:0}
+  header.app h1 .i{width:1em;height:1em;margin-right:6px}
+  .coach .t .i,.streak .i{margin-right:0}
+</style>
+</head>
+<body>
+
+<header class="app">
+  <h1><svg class="i" viewBox="0 0 24 24"><path d="M6.5 6.5v11M4 8v7M17.5 6.5v11M20 8v7M6.5 12h11"/></svg>体づくりログ</h1>
+  <div class="sub">脂肪を落として、筋肉は守る。目標 <b id="hGoal">72.5</b>kg</div>
+  <div class="kpi-strip" id="kpiStrip"></div>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ 今日 ============ -->
+  <section class="view on" id="v-today">
+    <div class="card">
+      <h2><span class="dot"></span>日付</h2>
+      <input type="date" id="fDate">
+      <div class="goal-mini" id="dateNote"></div>
+      <div id="missingDays" style="margin-top:8px"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="dot"></span>自動取得（ヘルスケア・Nike）</h2>
+      <div class="goal-mini" style="margin-top:-4px">体重・歩数・運動は1日の終わりにヘルスケアから自動で入ります。ふだんはここは触らなくてOK。</div>
+      <div class="auto-summary" id="autoSummary"></div>
+      <button class="btn ghost mini" style="margin-top:11px" onclick="importFromHealth()"><svg class="i" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>いま取り込む</button>
+      <div class="goal-mini" id="healthNote" style="cursor:pointer;margin-top:8px" onclick="toggleManual()">▸ 取れなかった時に手動で修正・入力する</div>
+      <div id="manualAuto" style="display:none;margin-top:10px">
+        <div class="weight-hero">
+          <input type="number" id="fWeight" step="0.1" inputmode="decimal" placeholder="--.-" oninput="renderAutoSummary()">
+          <span class="unit">kg</span>
+        </div>
+        <div class="goal-mini" id="weightNote"></div>
+        <div class="row" style="margin-top:10px">
+          <div class="field"><label class="f">ランニング(km)</label><input type="number" id="fRun" step="0.1" inputmode="decimal" placeholder="0" oninput="renderAutoSummary()"></div>
+          <div class="field"><label class="f">ウォーキング(km)</label><input type="number" id="fWalk" step="0.1" inputmode="decimal" placeholder="0" oninput="renderAutoSummary()"></div>
+        </div>
+        <div class="field">
+          <label class="f">歩数 <span id="stepGoalHint" class="muted"></span></label>
+          <input type="number" id="fSteps" inputmode="numeric" placeholder="0" oninput="renderAutoSummary()">
+        </div>
+        <div class="field">
+          <label class="f">ジム / 運動</label>
+          <div class="toggle-group">
+            <div class="chip" id="chGym" onclick="toggleChip('chGym');renderAutoSummary()"><svg class="i" viewBox="0 0 24 24"><path d="M6.5 6.5v11M4 8v7M17.5 6.5v11M20 8v7M6.5 12h11"/></svg>ジム</div>
+          </div>
+        </div>
+        <div class="field" id="partsWrap" style="display:none">
+          <label class="f">鍛えた部位</label>
+          <div class="toggle-group">
+            <div class="chip small" data-part="back" onclick="toggleChip(this)">背中</div>
+            <div class="chip small" data-part="chest" onclick="toggleChip(this)">胸</div>
+            <div class="chip small" data-part="shoulder" onclick="toggleChip(this)">肩</div>
+            <div class="chip small" data-part="legs" onclick="toggleChip(this)">下半身</div>
+          </div>
+        </div>
+        <div class="field"><label class="f">その他の運動</label><input type="text" id="fOther" placeholder="例：Nike Run Club 5km / テニス" oninput="renderAutoSummary()"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="dot"></span>食事</h2>
+      <div class="field"><label class="f">朝食</label><textarea id="fBreak" placeholder="例：卵かけご飯、納豆、キムチ"></textarea></div>
+      <div class="field"><label class="f">昼食</label><textarea id="fLunch"></textarea></div>
+      <div class="field"><label class="f">夕食</label><textarea id="fDinner"></textarea></div>
+      <div class="field"><label class="f">間食・外食</label><textarea id="fSnack"></textarea></div>
+      <div class="row">
+        <div class="field"><label class="f">推定カロリー(kcal) <span class="muted" id="kcalHint"></span></label><input type="number" id="fKcal" inputmode="numeric" placeholder="2200"></div>
+        <div class="field"><label class="f">たんぱく質(g) <span class="muted" id="protHint"></span></label><input type="number" id="fProt" inputmode="numeric" placeholder="130"></div>
+      </div>
+      <button class="btn ghost mini" onclick="estimateMeals()"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"/></svg>食事内容からカロリー・Pをざっくり見積り</button>
+    </div>
+
+    <div class="card">
+      <h2><span class="dot"></span>水分・体調</h2>
+      <div class="field">
+        <label class="f">水分(L) <span class="muted">目標 <b id="waterGoalHint">1.8</b>L</span></label>
+        <div class="stepper">
+          <button onclick="bumpWater(-0.2)">−</button>
+          <div class="val"><span id="waterVal">0.0</span> L</div>
+          <button onclick="bumpWater(0.2)">＋</button>
+        </div>
+      </div>
+      <div class="field">
+        <label class="f">便通</label>
+        <div class="toggle-group">
+          <div class="chip" data-bowel="あり" onclick="pickBowel(this)">あり</div>
+          <div class="chip" data-bowel="なし" onclick="pickBowel(this)">なし</div>
+        </div>
+      </div>
+      <div class="field"><label class="f">便通・体調メモ</label><input type="text" id="fBowelMemo" placeholder="例：張り・ガス多め / 良好"></div>
+      <div class="row">
+        <div class="field"><label class="f">睡眠(h)</label><input type="number" id="fSleep" step="0.5" inputmode="decimal" placeholder="7.5"></div>
+        <div class="field"><label class="f">回復度(1-10)</label><input type="number" id="fRecov" inputmode="numeric" placeholder="8"></div>
+      </div>
+      <div class="field"><label class="f">ひとことメモ</label><input type="text" id="fNote" placeholder="なんでも"></div>
+    </div>
+
+    <button class="btn" onclick="saveEntry()">この日を記録する</button>
+
+    <div id="resultCard" style="display:none">
+      <div class="card">
+        <h2><span class="dot"></span>今日の評価</h2>
+        <div class="score-badge">
+          <div class="num" id="scNum">0</div>
+          <div class="lab" id="scLab"></div>
+        </div>
+        <div class="score-bars" id="scBars"></div>
+        <div class="coach" id="coachBox"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 記録 ============ -->
+  <section class="view" id="v-history">
+    <div class="card">
+      <h2><span class="dot"></span>体重の推移</h2>
+      <canvas id="chart" height="200"></canvas>
+      <div class="muted" style="text-align:center;margin-top:6px">直線＝目標体重 <b id="chGoalLabel"></b>kg・点線＝7日平均</div>
+    </div>
+    <div class="card">
+      <h2><span class="dot"></span>直近7日サマリー</h2>
+      <div id="weekSummary"></div>
+    </div>
+    <div class="card">
+      <h2><span class="dot"></span>記録一覧 <span class="muted" id="histCount"></span></h2>
+      <div id="histList"></div>
+    </div>
+  </section>
+
+  <!-- ============ コーチ ============ -->
+  <section class="view" id="v-coach">
+    <div class="card">
+      <h2><span class="dot"></span>いまの状態</h2>
+      <div id="coachStreak" style="margin-bottom:10px"></div>
+      <div id="coachStats"></div>
+    </div>
+    <div class="card">
+      <h2><span class="dot"></span>コーチからの見立て</h2>
+      <div id="coachAnalysis"></div>
+    </div>
+  </section>
+
+  <!-- ============ 設定 ============ -->
+  <section class="view" id="v-settings">
+    <div class="card">
+      <h2><span class="dot"></span>目標の設定</h2>
+      <div class="row">
+        <div class="field"><label class="f">目標体重(kg)</label><input type="number" id="gWeight" step="0.1"></div>
+        <div class="field"><label class="f">歩数/日</label><input type="number" id="gSteps"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label class="f">たんぱく質/日(g)</label><input type="number" id="gProt"></div>
+        <div class="field"><label class="f">水分/日(L)</label><input type="number" id="gWater" step="0.1"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label class="f">カロリー下限</label><input type="number" id="gKcalLo"></div>
+        <div class="field"><label class="f">カロリー上限</label><input type="number" id="gKcalHi"></div>
+      </div>
+      <div class="field"><label class="f">ジム/週</label><input type="number" id="gGym"></div>
+      <button class="btn mini" onclick="saveGoals()">目標を保存</button>
+    </div>
+
+    <div class="card">
+      <h2><span class="dot"></span>スプレッドシートに書き出す</h2>
+      <p class="muted">選んだ日の1行をコピーして、Googleスプレッドシートの日別ログに貼り付けできます（タブ区切り＝そのまま横に並びます）。</p>
+      <div class="field"><label class="f">対象の日</label><input type="date" id="expDate"></div>
+      <button class="btn ghost mini" onclick="copyRow()"><svg class="i" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>この日の行をコピー</button>
+      <div class="divider"></div>
+      <button class="btn ghost mini" onclick="downloadCSV()"><svg class="i" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>全記録をCSVでダウンロード</button>
+    </div>
+
+    <div class="card">
+      <h2><span class="dot"></span>ヘルスケア連携（1日の終わりに自動記録）</h2>
+      <p class="muted" style="line-height:1.8">
+      <b>①出力をオン：</b>OMRON connectで体重を、Nike Run Clubでランニングを、それぞれAppleヘルスケアへ書き出す設定をオンにします（歩数はiPhoneが自動集計）。<br>
+      <b>②ショートカット作成：</b>「ショートカット」アプリで、ヘルスケアから <b>体重（最新1件）・歩数（今日の合計）・当日のランニング距離・ワークアウト</b> を取得。「テキスト」で次を作成：<br>
+      <code>d=[今日の日付];w=[体重];s=[歩数];r=[ラン距離];o=[運動名]</code><br>
+      最後に「URLを開く」で <code>[このアプリのURL]#[上のテキスト]</code> を開く。<br>
+      <b>③自動化：</b>「オートメーション」→個人用→<b>時刻（毎日23:50など）</b>→上のショートカットを実行。「実行の前に尋ねる」をオフにすると、1日の終わりにアプリが自動で開き、体重・歩数・運動が保存されます。<br>
+      ※ロック中は次にロック解除した時に記録されます。うまくいかない時は、そのショートカットを手動実行するか、今日タブの「いま取り込む」でも取り込めます（クリップボード経由）。<br>
+      ※手入力するのは<b>食事・水分・体調</b>だけ。これらは1日の終わりまでに入れ、抜けた日は日付タブの「入力漏れの日」から遡って入力できます。
+      </p>
+    </div>
+
+    <div class="card">
+      <h2><span class="dot"></span>バックアップ</h2>
+      <p class="muted">記録はこの端末のブラウザに保存されます。機種変更や別端末に移すときはバックアップを使ってください。</p>
+      <button class="btn ghost mini" onclick="exportJSON()"><svg class="i" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>バックアップを書き出す(JSON)</button>
+      <div style="height:8px"></div>
+      <label class="btn ghost mini" style="text-align:center;display:block"><svg class="i" viewBox="0 0 24 24"><path d="M12 15V3M7 8l5-5 5 5M5 21h14"/></svg>バックアップを読み込む<input type="file" accept=".json" onchange="importJSON(event)" style="display:none"></label>
+    </div>
+
+    <div class="card">
+      <h2><span class="dot"></span>評価点の仕組み</h2>
+      <p class="muted" style="line-height:1.7">
+      運動25点（アクティブ15＋歩数10）／食事35点（たんぱく質15＋カロリー20）／水分20点／便通10点／記録10点。<br>
+      結果（体重）だけでなく「今日どう動いたか」を評価します。数字が少し前後しても、続けることが一番の得点源です。
+      </p>
+    </div>
+    <p class="muted" style="text-align:center;margin:18px 0">ホーム画面に追加すると、アプリのように使えます。</p>
+  </section>
+
+</div>
+
+<nav class="nav">
+  <button class="on" data-v="today" onclick="nav('today')"><span class="ic"><svg class="i i-nav" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>今日</button>
+  <button data-v="history" onclick="nav('history')"><span class="ic"><svg class="i i-nav" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M19 9l-5 5-4-4-3 3"/></svg></span>記録</button>
+  <button data-v="coach" onclick="nav('coach')"><span class="ic"><svg class="i i-nav" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.5.5 1 1.3 1 2.3h6c0-1 .5-1.8 1-2.3A7 7 0 0 0 12 2Z"/></svg></span>コーチ</button>
+  <button data-v="settings" onclick="nav('settings')"><span class="ic"><svg class="i i-nav" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>設定</button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ ストレージ ============ */
+const KEY='diet_log_v1';
+let store=load();
+function load(){
+  try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r);}catch(e){}
+  return seed();
+}
+function persist(){
+  try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}
+}
+function num(x){const n=parseFloat(x);return isNaN(n)?0:n;}
+function has(x){return x!==''&&x!==null&&x!==undefined;}
+
+/* ============ 初期データ（目標値のみ・記録は空スタート） ============ */
+function seed(){
+  const g={targetWeight:72.5,steps:7000,gym:3,protein:130,water:1.8,kcalLo:1900,kcalHi:2300};
+  return {goals:g,entries:{}};
+}
+
+/* ============ スコア計算 ============ */
+function calcScore(en){
+  const g=store.goals;
+  const active=(en.gym||(num(en.run)+num(en.walk))>0||(en.other&&String(en.other).trim()))?15:0;
+  const stepPt=Math.min(10,Math.round(num(en.steps)/g.steps*10));
+  const ex=active+stepPt;
+  const protPt=has(en.protein)?Math.min(15,Math.round(num(en.protein)/g.protein*15)):0;
+  let calPt=0;const c=num(en.kcal);
+  if(has(en.kcal)){
+    if(c>=g.kcalLo&&c<=g.kcalHi)calPt=20;
+    else if((c>=g.kcalLo-400&&c<g.kcalLo)||(c>g.kcalHi&&c<=g.kcalHi+400))calPt=13;
+    else calPt=6;
+  }
+  const food=protPt+calPt;
+  const water=has(en.water)?Math.min(20,Math.round(num(en.water)/g.water*20)):0;
+  const bowel=en.bowel==='あり'?10:en.bowel==='なし'?5:0;
+  const anyMeal=en.breakfast||en.lunch||en.dinner||en.snack;
+  const rec=(has(en.weight)||anyMeal)?10:0;
+  const total=ex+food+water+bowel+rec;
+  return {total,ex,food,water,bowel,rec,active,stepPt,protPt,calPt};
+}
+function ratingLabel(t){
+  if(t>=88)return['非常に良い','#16a34a'];
+  if(t>=78)return['良い','#0d9488'];
+  if(t>=65)return['まずまず','#d97706'];
+  return['要調整','#dc2626'];
+}
+
+/* ============ 画面遷移 ============ */
+function nav(v){
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
+  document.getElementById('v-'+v).classList.add('on');
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  window.scrollTo(0,0);
+  if(v==='history'){renderChart();renderWeek();renderHist();}
+  if(v==='coach')renderCoach();
+  if(v==='settings')fillGoals();
+}
+
+/* ============ 入力補助 ============ */
+let bowelPick='';
+function toggleChip(el){
+  if(typeof el==='string')el=document.getElementById(el);
+  el.classList.toggle('on');
+  if(el.id==='chGym')document.getElementById('partsWrap').style.display=el.classList.contains('on')?'block':'none';
+}
+function pickBowel(el){
+  const v=el.dataset.bowel;
+  document.querySelectorAll('[data-bowel]').forEach(x=>x.classList.remove('on'));
+  if(bowelPick===v){bowelPick='';}else{bowelPick=v;el.classList.add('on');}
+}
+let waterCur=0;
+function bumpWater(d){waterCur=Math.max(0,Math.round((waterCur+d)*10)/10);document.getElementById('waterVal').textContent=waterCur.toFixed(1);}
+
+function estimateMeals(){
+  // ごく簡易のヒント（正確な計算ではなく目安）
+  showToast('食事量に幅があるので、迷ったら朝600/昼700/夕700kcal・P各30〜40gを目安に。詳しくはコーチに相談を。');
+}
+
+/* ============ ヘルスケア取り込み（クリップボード / URL） ============ */
+function normDate(s){const p=s.replace(/\//g,'-').split('-');if(p.length<3)return null;return p[0]+'-'+p[1].padStart(2,'0')+'-'+p[2].padStart(2,'0');}
+function toggleManual(){
+  const m=document.getElementById('manualAuto');const open=m.style.display==='none';
+  m.style.display=open?'block':'none';
+  document.getElementById('healthNote').innerHTML=(open?'▾':'▸')+' 取れなかった時に手動で修正・入力する';
+}
+async function importFromHealth(){
+  let txt='';
+  try{ txt=await navigator.clipboard.readText(); }
+  catch(e){ showToast('クリップボードを読めませんでした。先にショートカットを実行してから押してください'); return; }
+  if(!txt||!txt.trim()){ showToast('クリップボードが空です。ショートカットを実行してから押してください'); return; }
+  applyHealthText(txt,true);
+}
+// ヘルスケア文字列を現在のフォームに反映（保存はしない）。取り込めた項目があれば true
+function applyHealthText(txt,notify){
+  let w=null,s=null,d=null,r=null,k=null,g=null,o=null,m;
+  if(m=txt.match(/(?:^|[;\s])w\s*[=:]\s*([\d.]+)/i))w=m[1];
+  if(m=txt.match(/(?:^|[;\s])s\s*[=:]\s*([\d,]+)/i))s=m[1].replace(/,/g,'');
+  if(m=txt.match(/(?:^|[;\s])r\s*[=:]\s*([\d.]+)/i))r=m[1];
+  if(m=txt.match(/(?:^|[;\s])k\s*[=:]\s*([\d.]+)/i))k=m[1];
+  if(m=txt.match(/(?:^|[;\s])g\s*[=:]\s*(1|true|あり)/i))g=true;
+  if(m=txt.match(/(?:^|[;\s])o\s*[=:]\s*([^;]+)/i))o=m[1].trim();
+  if(m=txt.match(/(?:^|[;\s])d\s*[=:]\s*(\d{4}[-\/]\d{1,2}[-\/]\d{1,2})/i))d=normDate(m[1]);
+  // キーが一切無い場合のみ、素の数字2つ（体重・歩数）を拾う
+  if(w===null&&s===null&&r===null&&o===null){
+    const nums=txt.replace(/,/g,'').match(/\d+(\.\d+)?/g);
+    if(nums&&nums.length>=2){w=nums[0];s=String(Math.round(parseFloat(nums[1])));}
+    else if(nums&&nums.length===1){w=nums[0];}
+  }
+  if(d)document.getElementById('fDate').value=d;
+  if(w!==null)document.getElementById('fWeight').value=parseFloat(w);
+  if(s!==null)document.getElementById('fSteps').value=parseInt(s,10);
+  if(r!==null)document.getElementById('fRun').value=parseFloat(r);
+  if(k!==null)document.getElementById('fWalk').value=parseFloat(k);
+  if(g){document.getElementById('chGym').classList.add('on');document.getElementById('partsWrap').style.display='block';}
+  if(o!==null)document.getElementById('fOther').value=o;
+  updateDateNote();renderAutoSummary();
+  const got=(w!==null||s!==null||r!==null||k!==null||g||o!==null);
+  if(notify){
+    const parts=[];
+    if(w!==null)parts.push('体重'+parseFloat(w)+'kg');
+    if(s!==null)parts.push('歩数'+parseInt(s,10).toLocaleString());
+    if(r!==null&&parseFloat(r)>0)parts.push('ラン'+parseFloat(r)+'km');
+    if(o!==null)parts.push('運動'+o);
+    showToast(got?('取り込みました：'+parts.join(' / ')+'。確認して保存を'):'数値を読み取れませんでした');
+  }
+  return got;
+}
+// URL（#d=…;w=…）から来たデータ＝1日の終わりの自動記録。既存の食事等は保つ形でマージし自動保存
+function handleIncomingData(txt){
+  let d=null,m; if(m=txt.match(/(?:^|[;\s])d\s*[=:]\s*(\d{4}[-\/]\d{1,2}[-\/]\d{1,2})/i))d=normDate(m[1]);
+  const target=d||todayStr();
+  if(store.entries[target])editEntry(target);
+  else{resetForm();document.getElementById('fDate').value=target;updateDateNote();}
+  const got=applyHealthText(txt,false);
+  nav('today');
+  if(got){saveEntry();showToast('ヘルスケアから自動記録しました');}
+}
+// 自動取得サマリー（読み取り専用の表示）
+function renderAutoSummary(){
+  const el=document.getElementById('autoSummary');if(!el)return;
+  const w=document.getElementById('fWeight').value,s=document.getElementById('fSteps').value;
+  const r=document.getElementById('fRun').value,k=document.getElementById('fWalk').value;
+  const gym=document.getElementById('chGym').classList.contains('on'),o=document.getElementById('fOther').value;
+  const chip=(l,v,empty)=>`<span class="ac-chip${empty?' empty':''}"><b>${l}</b>${v}</span>`;
+  const out=[];
+  out.push(chip('体重',has(w)?parseFloat(w)+'kg':'未取得',!has(w)));
+  out.push(chip('歩数',has(s)?parseInt(s,10).toLocaleString():'未取得',!has(s)));
+  const exParts=[];
+  if(has(r)&&parseFloat(r)>0)exParts.push('ラン'+parseFloat(r)+'km');
+  if(has(k)&&parseFloat(k)>0)exParts.push('歩行'+parseFloat(k)+'km');
+  if(gym)exParts.push('ジム');
+  if(o&&o.trim())exParts.push(o.length>12?o.slice(0,12)+'…':o);
+  out.push(chip('運動',exParts.length?exParts.join('・'):'なし',!exParts.length));
+  el.innerHTML=out.join('');
+}
+// 入力漏れ（食事も水分も未入力）の日を直近7日から拾い、遡り入力の導線を出す
+function renderMissingDays(){
+  const el=document.getElementById('missingDays');if(!el)return;
+  const base=new Date(todayStr()+'T00:00:00');const chips=[];
+  for(let i=1;i<=7;i++){
+    const dt=new Date(base);dt.setDate(dt.getDate()-i);
+    const ds=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+    const e=store.entries[ds];
+    const incomplete=!e||(!e.breakfast&&!e.lunch&&!e.dinner&&!e.snack&&!has(e.water));
+    if(incomplete)chips.push(ds);
+  }
+  if(!chips.length){el.innerHTML='<span class="goal-mini">直近の入力漏れはありません</span>';return;}
+  el.innerHTML='<div class="goal-mini" style="margin-bottom:5px">入力漏れの日（タップで遡って入力）：</div>'+
+    chips.map(ds=>`<span class="miss-chip" onclick="jumpDate('${ds}')">${ds.slice(5).replace('-','/')}</span>`).join('');
+}
+function jumpDate(ds){
+  if(store.entries[ds])editEntry(ds);
+  else{resetForm();document.getElementById('fDate').value=ds;updateDateNote();renderAutoSummary();}
+  window.scrollTo(0,0);
+}
+function resetForm(){
+  ['fWeight','fRun','fWalk','fSteps','fOther','fBreak','fLunch','fDinner','fSnack','fKcal','fProt','fBowelMemo','fSleep','fRecov','fNote'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('chGym').classList.remove('on');
+  document.getElementById('partsWrap').style.display='none';
+  document.querySelectorAll('[data-part]').forEach(p=>p.classList.remove('on'));
+  waterCur=0;document.getElementById('waterVal').textContent='0.0';
+  bowelPick='';document.querySelectorAll('[data-bowel]').forEach(x=>x.classList.remove('on'));
+  document.getElementById('resultCard').style.display='none';
+  renderAutoSummary();
+}
+
+/* ============ 保存 ============ */
+function readForm(){
+  const parts={};document.querySelectorAll('[data-part]').forEach(p=>{if(p.classList.contains('on'))parts[p.dataset.part]=1;});
+  return {
+    date:document.getElementById('fDate').value,
+    weight:document.getElementById('fWeight').value,
+    run:document.getElementById('fRun').value,
+    walk:document.getElementById('fWalk').value,
+    steps:document.getElementById('fSteps').value,
+    gym:document.getElementById('chGym').classList.contains('on'),
+    parts,
+    other:document.getElementById('fOther').value,
+    breakfast:document.getElementById('fBreak').value,
+    lunch:document.getElementById('fLunch').value,
+    dinner:document.getElementById('fDinner').value,
+    snack:document.getElementById('fSnack').value,
+    kcal:document.getElementById('fKcal').value,
+    protein:document.getElementById('fProt').value,
+    water:waterCur>0?waterCur:'',
+    bowel:bowelPick,
+    bowelMemo:document.getElementById('fBowelMemo').value,
+    sleep:document.getElementById('fSleep').value,
+    recovery:document.getElementById('fRecov').value,
+    note:document.getElementById('fNote').value
+  };
+}
+function saveEntry(){
+  const en=readForm();
+  if(!en.date){showToast('日付を選んでください');return;}
+  store.entries[en.date]=en;persist();
+  const sc=calcScore(en);
+  showResult(en,sc);
+  updateKpi();renderMissingDays();renderAutoSummary();
+  showToast('記録しました');
+}
+function showResult(en,sc){
+  const [lab,col]=ratingLabel(sc.total);
+  document.getElementById('resultCard').style.display='block';
+  document.getElementById('scNum').textContent=sc.total;
+  document.getElementById('scNum').style.color=col;
+  const ll=document.getElementById('scLab');ll.textContent=lab;ll.style.color=col;
+  const bars=[['運動',sc.ex,25],['食事',sc.food,35],['水分',sc.water,20],['便通',sc.bowel,10],['記録',sc.rec,10]];
+  document.getElementById('scBars').innerHTML=bars.map(b=>
+    `<div class="sb"><span>${b[0]}</span><div class="track"><div class="fill" style="width:${b[1]/b[2]*100}%"></div></div><span class="n">${b[1]}/${b[2]}</span></div>`).join('');
+  document.getElementById('coachBox').innerHTML=coachMessage(en,sc);
+  document.getElementById('resultCard').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+/* ============ コーチのひとこと（保存後） ============ */
+function coachMessage(en,sc){
+  const g=store.goals;const praise=[];const watch=[];
+  if(num(en.protein)>=g.protein)praise.push(`たんぱく質${num(en.protein)}gで目標クリア。筋肉を守る一番の要です`);
+  else if(has(en.protein))watch.push(`たんぱく質はあと${Math.max(0,g.protein-num(en.protein))}gで目標。夜に卵・鶏むね・魚を一品足せば届きます`);
+  if(num(en.water)>=g.water)praise.push(`水分${num(en.water)}Lで達成`);
+  else if(has(en.water))watch.push(`水分はあと${(g.water-num(en.water)).toFixed(1)}L`);
+  const c=num(en.kcal);
+  if(has(en.kcal)&&c<g.kcalLo-300)watch.push(`${c}kcalは少なめ。減らしすぎは筋肉が落ちやすく逆効果です。2100前後を狙いましょう`);
+  if(has(en.kcal)&&c>g.kcalHi+300)watch.push(`${c}kcalはやや多め。翌日は主食を少し控えて帳尻を`);
+  if(en.gym)praise.push('ジム完遂、お見事');
+  if(num(en.steps)>=g.steps)praise.push(`${num(en.steps).toLocaleString()}歩で歩数目標クリア`);
+  // 7日平均体重が下がったか
+  const wa=avgWeight7(en.date);
+  let html='<div class="t"><svg class="i" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.5.5 1 1.3 1 2.3h6c0-1 .5-1.8 1-2.3A7 7 0 0 0 12 2Z"/></svg>コーチ</div>';
+  if(praise.length)html+=`<p><span class="praise">◎ ${praise.slice(0,2).join('／')}</span></p>`;
+  if(watch.length)html+=`<p><span class="watch">△ ${watch[0]}</span></p>`;
+  if(sc.total>=88)html+=`<p>この調子。行動の質が高い日です。</p>`;
+  else if(sc.total<65)html+=`<p>点数より、記録できたこと自体が前進です。明日は水分とたんぱく質だけ意識しましょう。</p>`;
+  if(wa)html+=`<p class="muted">7日平均体重：${wa.toFixed(2)}kg（目標まで ${(wa-g.targetWeight).toFixed(1)}kg）</p>`;
+  return html;
+}
+
+/* ============ 集計 ============ */
+function sortedEntries(){return Object.values(store.entries).sort((a,b)=>a.date<b.date?-1:1);}
+function avgWeight7(dateStr){
+  const all=sortedEntries().filter(e=>has(e.weight)&&e.date<=dateStr);
+  const last=all.slice(-7);if(!last.length)return null;
+  return last.reduce((s,e)=>s+num(e.weight),0)/last.length;
+}
+function recentN(n){
+  const all=sortedEntries();return all.slice(-n);
+}
+function updateKpi(){
+  const all=sortedEntries();
+  const wEntries=all.filter(e=>has(e.weight));
+  const latest=wEntries.length?num(wEntries[wEntries.length-1].weight):'--';
+  const last7=wEntries.slice(-7);
+  const avg7=last7.length?(last7.reduce((s,e)=>s+num(e.weight),0)/last7.length):null;
+  const g=store.goals;
+  const diff=avg7!==null?(avg7-g.targetWeight):null;
+  const strip=document.getElementById('kpiStrip');
+  strip.innerHTML=`
+    <div class="k"><div class="v">${latest==='--'?'--':latest.toFixed(1)}</div><div class="l">最新体重</div></div>
+    <div class="k"><div class="v">${avg7!==null?avg7.toFixed(1):'--'}</div><div class="l">7日平均</div></div>
+    <div class="k"><div class="v">${diff!==null?(diff>0?'+':'')+diff.toFixed(1):'--'}</div><div class="l">目標まで</div></div>
+    <div class="k"><div class="v">${streakCount()}</div><div class="l">連続記録</div></div>`;
+  document.getElementById('hGoal').textContent=g.targetWeight;
+}
+function streakCount(){
+  // 最新の記録日から連続で記録がある日数
+  const dates=sortedEntries().map(e=>e.date);
+  if(!dates.length)return 0;
+  let cnt=1;
+  for(let i=dates.length-1;i>0;i--){
+    const d1=new Date(dates[i]),d0=new Date(dates[i-1]);
+    const diff=Math.round((d1-d0)/86400000);
+    if(diff===1)cnt++;else break;
+  }
+  return cnt;
+}
+
+/* ============ グラフ（自前canvas） ============ */
+function renderChart(){
+  const cv=document.getElementById('chart');const dpr=window.devicePixelRatio||1;
+  const w=cv.clientWidth,h=200;cv.width=w*dpr;cv.height=h*dpr;
+  const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);ctx.clearRect(0,0,w,h);
+  const data=sortedEntries().filter(e=>has(e.weight)).map(e=>({d:e.date,w:num(e.weight)}));
+  if(data.length<1)return;
+  const g=store.goals;
+  const pad={l:34,r:10,t:12,b:22};
+  const ws=data.map(x=>x.w).concat([g.targetWeight]);
+  let mn=Math.min(...ws)-0.6,mx=Math.max(...ws)+0.6;
+  const X=i=>pad.l+(w-pad.l-pad.r)*(data.length===1?0.5:i/(data.length-1));
+  const Y=v=>pad.t+(h-pad.t-pad.b)*(1-(v-mn)/(mx-mn));
+  // grid
+  ctx.strokeStyle='#eef2f3';ctx.fillStyle='#9aa8ad';ctx.font='10px sans-serif';ctx.lineWidth=1;
+  for(let k=0;k<=3;k++){const val=mn+(mx-mn)*k/3;const y=Y(val);
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();
+    ctx.fillText(val.toFixed(1),4,y+3);}
+  // target line
+  ctx.strokeStyle='#0f766e';ctx.lineWidth=1.5;ctx.beginPath();
+  ctx.moveTo(pad.l,Y(g.targetWeight));ctx.lineTo(w-pad.r,Y(g.targetWeight));ctx.stroke();
+  // 7-day avg (dotted)
+  ctx.strokeStyle='#d97706';ctx.setLineDash([3,3]);ctx.lineWidth=1.5;ctx.beginPath();
+  data.forEach((p,i)=>{const sub=data.slice(Math.max(0,i-6),i+1);const a=sub.reduce((s,x)=>s+x.w,0)/sub.length;
+    const x=X(i),y=Y(a);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+  ctx.stroke();ctx.setLineDash([]);
+  // weight line
+  ctx.strokeStyle='#0d9488';ctx.lineWidth=2.5;ctx.beginPath();
+  data.forEach((p,i)=>{const x=X(i),y=Y(p.w);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.stroke();
+  // points
+  ctx.fillStyle='#0d9488';data.forEach((p,i)=>{ctx.beginPath();ctx.arc(X(i),Y(p.w),3,0,7);ctx.fill();});
+  // x labels (first,last)
+  ctx.fillStyle='#9aa8ad';ctx.textAlign='center';
+  const fmt=s=>s.slice(5).replace('-','/');
+  ctx.fillText(fmt(data[0].d),X(0),h-6);
+  if(data.length>1)ctx.fillText(fmt(data[data.length-1].d),X(data.length-1),h-6);
+  ctx.textAlign='left';
+  document.getElementById('chGoalLabel').textContent=g.targetWeight;
+}
+function renderWeek(){
+  const g=store.goals;const r=recentN(7);
+  const wd=r.filter(e=>has(e.weight));
+  const avgW=wd.length?wd.reduce((s,e)=>s+num(e.weight),0)/wd.length:null;
+  const prot=r.filter(e=>has(e.protein));const avgP=prot.length?prot.reduce((s,e)=>s+num(e.protein),0)/prot.length:null;
+  const wat=r.filter(e=>has(e.water));const avgWa=wat.length?wat.reduce((s,e)=>s+num(e.water),0)/wat.length:null;
+  const stp=r.filter(e=>has(e.steps));const avgS=stp.length?stp.reduce((s,e)=>s+num(e.steps),0)/stp.length:null;
+  const gymC=r.filter(e=>e.gym).length;
+  const rows=[
+    ['平均体重',avgW!==null?avgW.toFixed(2)+' kg':'--',null],
+    ['平均たんぱく質',avgP!==null?Math.round(avgP)+' g':'--',avgP!==null?(avgP>=g.protein?'g':avgP>=g.protein*0.85?'w':'b'):null,'目標'+g.protein],
+    ['平均水分',avgWa!==null?avgWa.toFixed(2)+' L':'--',avgWa!==null?(avgWa>=g.water?'g':avgWa>=g.water*0.8?'w':'b'):null,'目標'+g.water],
+    ['平均歩数',avgS!==null?Math.round(avgS).toLocaleString():'--',avgS!==null?(avgS>=g.steps?'g':avgS>=g.steps*0.8?'w':'b'):null,'目標'+g.steps],
+    ['ジム回数',gymC+' 回',gymC>=g.gym?'g':gymC>=2?'w':'b','目標'+g.gym]
+  ];
+  document.getElementById('weekSummary').innerHTML=rows.map(x=>
+    `<div class="insight-row"><span class="lab">${x[0]}</span><span class="val">${x[1]} ${x[3]?`<small>${x[3]}</small>`:''} ${x[2]?`<span class="pill ${x[2]}">${x[2]==='g'?'達成':x[2]==='w'?'あと少し':'不足'}</span>`:''}</span></div>`).join('');
+}
+function renderHist(){
+  const all=sortedEntries().slice().reverse();
+  document.getElementById('histCount').textContent=`(${all.length}日)`;
+  document.getElementById('histList').innerHTML=all.map(e=>{
+    const sc=calcScore(e);const [lab,col]=ratingLabel(sc.total);
+    const tags=[];if(e.gym)tags.push('ジム');if(num(e.run)>0)tags.push('走'+e.run+'km');if(e.other)tags.push('運動');
+    if(has(e.protein))tags.push('P'+e.protein);if(has(e.water))tags.push(e.water+'L');
+    return `<div class="hist-item" onclick="editEntry('${e.date}')">
+      <span class="d">${e.date.slice(5).replace('-','/')}</span>
+      <span class="w">${has(e.weight)?num(e.weight).toFixed(1):'--'}<span class="muted" style="font-size:10px">kg</span></span>
+      <span class="tags">${tags.map(t=>`<span class="tag">${t}</span>`).join('')}</span>
+      <span class="sc" style="color:${col}">${sc.total}</span></div>`;
+  }).join('');
+}
+function editEntry(date){
+  const e=store.entries[date];if(!e)return;
+  nav('today');
+  document.getElementById('fDate').value=e.date;
+  document.getElementById('fWeight').value=e.weight;
+  document.getElementById('fRun').value=e.run;
+  document.getElementById('fWalk').value=e.walk;
+  document.getElementById('fSteps').value=e.steps;
+  document.getElementById('chGym').classList.toggle('on',!!e.gym);
+  document.getElementById('partsWrap').style.display=e.gym?'block':'none';
+  document.querySelectorAll('[data-part]').forEach(p=>p.classList.toggle('on',!!(e.parts&&e.parts[p.dataset.part])));
+  document.getElementById('fOther').value=e.other||'';
+  document.getElementById('fBreak').value=e.breakfast||'';
+  document.getElementById('fLunch').value=e.lunch||'';
+  document.getElementById('fDinner').value=e.dinner||'';
+  document.getElementById('fSnack').value=e.snack||'';
+  document.getElementById('fKcal').value=e.kcal;
+  document.getElementById('fProt').value=e.protein;
+  waterCur=num(e.water);document.getElementById('waterVal').textContent=waterCur.toFixed(1);
+  bowelPick=e.bowel||'';document.querySelectorAll('[data-bowel]').forEach(x=>x.classList.toggle('on',x.dataset.bowel===e.bowel));
+  document.getElementById('fBowelMemo').value=e.bowelMemo||'';
+  document.getElementById('fSleep').value=e.sleep||'';
+  document.getElementById('fRecov').value=e.recovery||'';
+  document.getElementById('fNote').value=e.note||'';
+  renderAutoSummary();
+  const sc=calcScore(e);showResult(e,sc);
+}
+
+/* ============ コーチ画面 ============ */
+function renderCoach(){
+  const g=store.goals;const r7=recentN(7);const all=sortedEntries();
+  document.getElementById('coachStreak').innerHTML=`<span class="streak"><svg class="i" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>連続記録 ${streakCount()}日</span> <span class="muted">記録の継続が最大の武器です</span>`;
+  // stats
+  const avg7=avgWeight7(all.length?all[all.length-1].date:'');
+  const prevAvg=all.length>7?avgWeight7(all[all.length-8].date):null;
+  const prot=r7.filter(e=>has(e.protein));const avgP=prot.length?prot.reduce((s,e)=>s+num(e.protein),0)/prot.length:0;
+  const wat=r7.filter(e=>has(e.water));const avgWa=wat.length?wat.reduce((s,e)=>s+num(e.water),0)/wat.length:0;
+  const gymC=r7.filter(e=>e.gym).length;
+  const stats=[
+    ['7日平均体重',avg7?avg7.toFixed(2)+' kg':'--',avg7&&prevAvg?(avg7<prevAvg?'g':avg7>prevAvg?'w':null):null,avg7&&prevAvg?(avg7-prevAvg>=0?'+':'')+(avg7-prevAvg).toFixed(2)+'kg':''],
+    ['目標体重まで',avg7?(avg7-g.targetWeight).toFixed(1)+' kg':'--',null,''],
+    ['たんぱく質(7日平均)',Math.round(avgP)+' g',avgP>=g.protein?'g':avgP>=g.protein*0.85?'w':'b',''],
+    ['水分(7日平均)',avgWa.toFixed(2)+' L',avgWa>=g.water?'g':avgWa>=g.water*0.8?'w':'b',''],
+    ['ジム(7日)',gymC+' 回',gymC>=g.gym?'g':'w','']
+  ];
+  document.getElementById('coachStats').innerHTML=stats.map(x=>
+    `<div class="insight-row"><span class="lab">${x[0]}</span><span class="val">${x[1]} ${x[3]?`<small>${x[3]}</small>`:''} ${x[2]?`<span class="pill ${x[2]}">${x[2]==='g'?'◎':x[2]==='w'?'△':'要'}</span>`:''}</span></div>`).join('');
+  // analysis
+  const msgs=[];
+  if(avg7&&prevAvg){
+    if(avg7<prevAvg)msgs.push(`<p><span class="praise">◎ 7日平均が${(prevAvg-avg7).toFixed(2)}kg低下。</span>体重は水分で日々ぶれるので、この平均の下降トレンドが本物のサインです。順調です。</p>`);
+    else msgs.push(`<p><span class="watch">△ 7日平均は横ばい〜微増。</span>2週間動かなければカロリーを150〜200kcalだけ調整します。まだ焦る段階ではありません。</p>`);
+  }
+  if(avgP<g.protein)msgs.push(`<p><span class="watch">△ たんぱく質が平均${Math.round(avgP)}gで目標${g.protein}gに未達。</span>減量中はここが筋肉維持の生命線。毎食こぶし1個分（卵2個/鶏むね100g/魚一切れ/納豆2P）を"必ず1品"入れると届きます。</p>`);
+  else msgs.push(`<p><span class="praise">◎ たんぱく質は平均${Math.round(avgP)}gで十分。</span>筋肉を守る土台ができています。</p>`);
+  if(avgWa<g.water)msgs.push(`<p><span class="watch">△ 水分が平均${avgWa.toFixed(1)}L。</span>目標${g.water}Lまであと一歩。起床時・トレ中・入浴前後にコップ1杯を固定化すると自然に届きます。便通改善にも効きます。</p>`);
+  // 便通
+  const bowelNo=r7.filter(e=>e.bowel==='なし').length;
+  if(bowelNo>=3)msgs.push(`<p><span class="watch">△ この7日で便通なしが${bowelNo}日。</span>水分・食物繊維・発酵食品を少しずつ。プロテインパウダーを使う日は特に水分多めに。</p>`);
+  // under-eating warning
+  const under=r7.filter(e=>has(e.kcal)&&num(e.kcal)<g.kcalLo-300);
+  if(under.length>=2)msgs.push(`<p><span class="watch">△ 極端に少ない食事の日が${under.length}日。</span>1500kcal台が続くと代謝が下がり筋肉も落ちやすくなります。"減らす"より"整える"意識で2100前後を狙いましょう。</p>`);
+  msgs.push(`<p class="muted">評価の考え方：結果（体重）は水分・便通・塩分で日々動きます。だからこそ、たんぱく質・水分・運動・記録という"自分でコントロールできる行動"を積み上げるのが最短ルートです。</p>`);
+  document.getElementById('coachAnalysis').innerHTML=msgs.join('');
+}
+
+/* ============ 設定・書き出し ============ */
+function fillGoals(){
+  const g=store.goals;
+  gWeight.value=g.targetWeight;gSteps.value=g.steps;gProt.value=g.protein;gWater.value=g.water;
+  gKcalLo.value=g.kcalLo;gKcalHi.value=g.kcalHi;gGym.value=g.gym;
+  document.getElementById('expDate').value=todayStr();
+}
+function saveGoals(){
+  store.goals={targetWeight:num(gWeight.value),steps:num(gSteps.value),protein:num(gProt.value),
+    water:num(gWater.value),kcalLo:num(gKcalLo.value),kcalHi:num(gKcalHi.value),gym:num(gGym.value)};
+  persist();updateKpi();refreshHints();showToast('目標を保存しました');
+}
+function rowFor(date){
+  const e=store.entries[date];if(!e)return null;
+  const sc=calcScore(e);const [lab]=ratingLabel(sc.total);
+  const p=e.parts||{};
+  const cols=[e.date,e.weight,e.run,e.walk,e.steps,e.gym?'あり':'なし',
+    p.back?'◯':'',p.shoulder?'◯':'',p.chest?'◯':'',p.legs?'◯':'',e.other,
+    e.breakfast,e.lunch,e.dinner,e.snack,e.kcal,e.protein,e.water,e.bowel,e.bowelMemo,
+    e.sleep,e.recovery,sc.total,lab,e.note];
+  return cols.map(c=>c===undefined||c===null?'':c);
+}
+function copyRow(){
+  const d=document.getElementById('expDate').value;
+  const row=rowFor(d);
+  if(!row){showToast('その日の記録がありません');return;}
+  const tsv=row.join('\t');
+  navigator.clipboard.writeText(tsv).then(()=>showToast('1行コピーしました。スプレッドシートに貼り付けてください'),
+    ()=>{prompt('コピーできない場合は手動で:',tsv);});
+}
+function downloadCSV(){
+  const head=['日付','体重(kg)','ランニング(km)','ウォーキング(km)','歩数','ジム','背中','肩','胸','下半身','その他の運動','朝食','昼食','夕食','間食・外食','推定摂取カロリー(kcal)','推定たんぱく質(g)','水分(L)','便通','便通・体調メモ','睡眠(h)','回復度','今日の評価点','評価','備考'];
+  const rows=sortedEntries().map(e=>rowFor(e.date));
+  const esc=c=>{c=String(c==null?'':c);return /[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c;};
+  const csv='﻿'+[head,...rows].map(r=>r.map(esc).join(',')).join('\n');
+  dl(csv,'diet-log.csv','text/csv');
+}
+function exportJSON(){dl(JSON.stringify(store,null,2),'diet-backup.json','application/json');}
+function importJSON(ev){
+  const f=ev.target.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{try{const o=JSON.parse(rd.result);if(o.entries){store=o;persist();updateKpi();showToast('読み込みました');}}catch(e){showToast('読み込めませんでした');}};
+  rd.readAsText(f);
+}
+function dl(text,name,type){
+  const b=new Blob([text],{type});const u=URL.createObjectURL(b);const a=document.createElement('a');
+  a.href=u;a.download=name;a.click();URL.revokeObjectURL(u);
+}
+
+/* ============ ユーティリティ ============ */
+function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3200);}
+function refreshHints(){
+  const g=store.goals;
+  document.getElementById('stepGoalHint').textContent='(目標'+g.steps+')';
+  document.getElementById('kcalHint').textContent=g.kcalLo+'〜'+g.kcalHi;
+  document.getElementById('protHint').textContent='目標'+g.protein;
+  document.getElementById('waterGoalHint').textContent=g.water;
+}
+function updateDateNote(){
+  const d=document.getElementById('fDate').value;
+  const ex=store.entries[d];
+  document.getElementById('dateNote').innerHTML=ex?'この日は記録済みです。上書き保存できます。':'新規の記録です。';
+  // weight note
+  const g=store.goals;const av=avgWeight7(d||todayStr());
+  document.getElementById('weightNote').innerHTML=av?`直近7日平均 <b>${av.toFixed(2)}kg</b>・目標まで <b>${(av-g.targetWeight).toFixed(1)}kg</b>`:'';
+}
+
+/* ============ 初期化 ============ */
+function onDateChange(){
+  const ds=document.getElementById('fDate').value;if(!ds)return;
+  if(store.entries[ds])editEntry(ds);
+  else{resetForm();document.getElementById('fDate').value=ds;updateDateNote();}
+}
+function init(){
+  document.getElementById('fDate').value=todayStr();
+  document.getElementById('fDate').addEventListener('change',onDateChange);
+  refreshHints();updateKpi();updateDateNote();renderMissingDays();
+  // URLハッシュ（例 #d=2026-07-22;w=75.9;s=8900;r=3.5;o=…）＝1日の終わりの自動記録
+  if(location.hash&&location.hash.length>1){
+    handleIncomingData(decodeURIComponent(location.hash.slice(1)));
+  } else if(store.entries[todayStr()]){
+    editEntry(todayStr());
+  } else {
+    renderAutoSummary();
+  }
+}
+init();
+</script>
+</body>
+</html>
