@@ -157,8 +157,15 @@
   .pg .rest{text-align:right;font-weight:700;font-size:11px;color:var(--sub)}
   .pg .rest.done{color:var(--good)}
   .pg .rest.over{color:var(--warn)}
-  .kpi-strip .k .v.big{font-size:22px}
   .sync-note{font-size:11px;color:var(--sub);font-weight:600}
+  .ring{position:relative;width:132px;margin:6px auto 0}
+  .ring svg{width:100%;display:block;transform:rotate(-90deg)}
+  .ring circle{fill:none;stroke-width:9;stroke-linecap:round}
+  .ring .bg{stroke:#eef2f3}
+  .ring .ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .ring .n{font-size:36px;font-weight:800;line-height:1}
+  .ring .u{font-size:10px;color:var(--sub);font-weight:700;margin-top:3px}
+  .ring-lab{text-align:center;font-size:13px;font-weight:700;margin-top:4px}
 </style>
 </head>
 <body>
@@ -166,17 +173,22 @@
 <header class="app">
   <h1><svg class="i" viewBox="0 0 24 24"><path d="M6.5 6.5v11M4 8v7M17.5 6.5v11M20 8v7M6.5 12h11"/></svg>体づくりログ</h1>
   <div class="sub">脂肪を落として、筋肉は守る。目標 <b id="hGoal">72.5</b>kg</div>
-  <div class="kpi-strip" id="kpiStrip"></div>
 </header>
 
 <div class="wrap">
 
   <!-- ============ 今日 ============ -->
   <section class="view on" id="v-today">
-    <!-- ① サマリ -->
+    <!-- ① 今日の状態（進捗＋評価を統合） -->
     <div class="card">
-      <h2><span class="dot"></span>今日の進捗 <span class="sync-note" id="syncNote"></span></h2>
-      <div id="progList"></div>
+      <h2><span class="dot"></span>今日の状態 <span class="sync-note" id="syncNote"></span></h2>
+      <div class="ring">
+        <svg viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="42"/><circle id="ringFg" cx="50" cy="50" r="42"/></svg>
+        <div class="ctr"><div class="n" id="scNum">0</div><div class="u">点</div></div>
+      </div>
+      <div class="ring-lab" id="scLab"></div>
+      <div id="progList" style="margin-top:12px"></div>
+      <div class="coach" id="coachBox"></div>
       <button class="btn ghost mini" style="margin-top:11px" onclick="importFromHealth()"><svg class="i" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>いま取り込む</button>
     </div>
 
@@ -273,19 +285,7 @@
       </div>
     </div>
 
-    <button class="btn" onclick="saveEntry()">この日を記録する</button>
-
-    <div id="resultCard" style="display:none">
-      <div class="card">
-        <h2><span class="dot"></span>今日の評価</h2>
-        <div class="score-badge">
-          <div class="num" id="scNum">0</div>
-          <div class="lab" id="scLab"></div>
-        </div>
-        <div class="score-bars" id="scBars"></div>
-        <div class="coach" id="coachBox"></div>
-      </div>
-    </div>
+    <button class="btn" onclick="saveEntry()">入力を保存する</button>
   </section>
 
   <!-- ============ 記録 ============ -->
@@ -626,7 +626,26 @@ function renderMealSummary(){
     chip('C',has(e.carbs)?num(e.carbs)+'g':'--',!has(e.carbs))
   ].join('');
 }
-function onFormInput(){renderProgress();renderMealSummary();updateKpi();}
+// 総合点のドーナツ
+function renderRing(total){
+  const C=2*Math.PI*42;
+  const fg=document.getElementById('ringFg');if(!fg)return;
+  const [lab,col]=ratingLabel(total);
+  fg.style.strokeDasharray=C;
+  fg.style.strokeDashoffset=C*(1-Math.min(100,Math.max(0,total))/100);
+  fg.style.stroke=col;
+  const n=document.getElementById('scNum');n.textContent=total;n.style.color=col;
+  const l=document.getElementById('scLab');l.textContent=lab;l.style.color=col;
+}
+// 入力や連携のたびに、今日の状態カードをまるごと更新する
+function onFormInput(){
+  const e=currentDraft(),sc=calcScore(e);
+  renderRing(sc.total);
+  renderProgress();
+  renderMealSummary();
+  const cb=document.getElementById('coachBox');
+  if(cb)cb.innerHTML=coachMessage(e,sc);
+}
 // 入力漏れ（食事も水分も未入力）の日を直近7日から拾い、遡り入力の導線を出す
 function renderMissingDays(){
   const el=document.getElementById('missingDays');if(!el)return;
@@ -655,7 +674,6 @@ function resetForm(){
   waterCur=0;document.getElementById('waterVal').textContent='0.0';
   bowelPick='';document.querySelectorAll('[data-bowel]').forEach(x=>x.classList.remove('on'));
   curSync='';
-  document.getElementById('resultCard').style.display='none';
   onFormInput();
 }
 
@@ -676,22 +694,8 @@ function saveEntry(silent){
   const en=readForm();
   if(!en.date){showToast('日付を選んでください');return;}
   store.entries[en.date]=en;persist();
-  const sc=calcScore(en);
-  showResult(en,sc);
-  updateKpi();renderMissingDays();onFormInput();
-  if(!silent)showToast('記録しました');
-}
-function showResult(en,sc){
-  const [lab,col]=ratingLabel(sc.total);
-  document.getElementById('resultCard').style.display='block';
-  document.getElementById('scNum').textContent=sc.total;
-  document.getElementById('scNum').style.color=col;
-  const ll=document.getElementById('scLab');ll.textContent=lab;ll.style.color=col;
-  const bars=[['食事',sc.food,40],['運動',sc.ex,30],['水分',sc.water,20],['便通',sc.bowel,10]];
-  document.getElementById('scBars').innerHTML=bars.map(b=>
-    `<div class="sb"><span>${b[0]}</span><div class="track"><div class="fill" style="width:${b[1]/b[2]*100}%"></div></div><span class="n">${b[1]}/${b[2]}</span></div>`).join('');
-  document.getElementById('coachBox').innerHTML=coachMessage(en,sc);
-  document.getElementById('resultCard').scrollIntoView({behavior:'smooth',block:'center'});
+  renderMissingDays();onFormInput();
+  if(!silent)showToast('保存しました');
 }
 
 /* ============ コーチのひとこと（保存後） ============ */
@@ -727,18 +731,9 @@ function avgWeight7(dateStr){
 function recentN(n){
   const all=sortedEntries();return all.slice(-n);
 }
-// ヘッダー：体重ではなく「今日の総合点数」と、コントロールできる科目の残りを出す
+// ヘッダーの目標体重表示だけ更新（数値サマリは今日の状態カードに集約）
 function updateKpi(){
-  const g=store.goals,e=currentDraft(),sc=calcScore(e);
-  const rest=(v,goal)=>Math.max(0,goal-num(v));
-  const steps=rest(e.steps,g.steps),water=rest(e.water,g.water),prot=rest(e.protein,g.protein);
-  const strip=document.getElementById('kpiStrip');if(!strip)return;
-  strip.innerHTML=`
-    <div class="k"><div class="v big">${sc.total}</div><div class="l">今日の点数</div></div>
-    <div class="k"><div class="v">${steps>0?Math.round(steps).toLocaleString():'達成'}</div><div class="l">歩数のこり</div></div>
-    <div class="k"><div class="v">${water>0?water.toFixed(1):'達成'}</div><div class="l">水分のこり(L)</div></div>
-    <div class="k"><div class="v">${prot>0?Math.round(prot):'達成'}</div><div class="l">Pのこり(g)</div></div>`;
-  const hg=document.getElementById('hGoal');if(hg)hg.textContent=g.targetWeight;
+  const hg=document.getElementById('hGoal');if(hg)hg.textContent=store.goals.targetWeight;
 }
 function streakCount(){
   // 最新の記録日から連続で記録がある日数
@@ -856,7 +851,6 @@ function editEntry(date){
   document.getElementById('fNote').value=e.note||'';
   curSync=e.lastSync||'';
   onFormInput();
-  const sc=calcScore(e);showResult(e,sc);
 }
 
 /* ============ コーチ画面 ============ */
