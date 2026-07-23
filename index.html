@@ -149,6 +149,16 @@
   .i-nav{width:22px;height:22px;margin:0;vertical-align:0}
   header.app h1 .i{width:1em;height:1em;margin-right:6px}
   .coach .t .i,.streak .i{margin-right:0}
+  .pg{display:grid;grid-template-columns:76px 1fr 80px;align-items:center;gap:8px;font-size:12px;padding:5px 0}
+  .pg .lab{color:var(--sub);font-weight:600}
+  .pg .track{height:8px;background:#eef2f3;border-radius:5px;overflow:hidden}
+  .pg .fill{height:100%;border-radius:5px;background:var(--accent2)}
+  .pg .fill.over{background:var(--warn)}
+  .pg .rest{text-align:right;font-weight:700;font-size:11px;color:var(--sub)}
+  .pg .rest.done{color:var(--good)}
+  .pg .rest.over{color:var(--warn)}
+  .kpi-strip .k .v.big{font-size:22px}
+  .sync-note{font-size:11px;color:var(--sub);font-weight:600}
 </style>
 </head>
 <body>
@@ -163,6 +173,14 @@
 
   <!-- ============ 今日 ============ -->
   <section class="view on" id="v-today">
+    <!-- ① サマリ -->
+    <div class="card">
+      <h2><span class="dot"></span>今日の進捗 <span class="sync-note" id="syncNote"></span></h2>
+      <div id="progList"></div>
+      <button class="btn ghost mini" style="margin-top:11px" onclick="importFromHealth()"><svg class="i" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>いま取り込む</button>
+    </div>
+
+    <!-- ② 日付 -->
     <div class="card">
       <h2><span class="dot"></span>日付</h2>
       <input type="date" id="fDate">
@@ -170,60 +188,56 @@
       <div id="missingDays" style="margin-top:8px"></div>
     </div>
 
+    <!-- ③ 食事 -->
     <div class="card">
-      <h2><span class="dot"></span>自動取得（ヘルスケア・Nike）</h2>
-      <div class="goal-mini" style="margin-top:-4px">体重・歩数・運動は1日の終わりにヘルスケアから自動で入ります。ふだんはここは触らなくてOK。</div>
-      <div class="auto-summary" id="autoSummary"></div>
-      <button class="btn ghost mini" style="margin-top:11px" onclick="importFromHealth()"><svg class="i" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>いま取り込む</button>
-      <div class="goal-mini" id="healthNote" style="cursor:pointer;margin-top:8px" onclick="toggleManual()">▸ 取れなかった時に手動で修正・入力する</div>
-      <div id="manualAuto" style="display:none;margin-top:10px">
-        <div class="weight-hero">
-          <input type="number" id="fWeight" step="0.1" inputmode="decimal" placeholder="--.-" oninput="renderAutoSummary()">
-          <span class="unit">kg</span>
-        </div>
-        <div class="goal-mini" id="weightNote"></div>
-        <div class="row" style="margin-top:10px">
-          <div class="field"><label class="f">ランニング(km)</label><input type="number" id="fRun" step="0.1" inputmode="decimal" placeholder="0" oninput="renderAutoSummary()"></div>
-          <div class="field"><label class="f">ウォーキング(km)</label><input type="number" id="fWalk" step="0.1" inputmode="decimal" placeholder="0" oninput="renderAutoSummary()"></div>
-        </div>
-        <div class="field">
-          <label class="f">歩数 <span id="stepGoalHint" class="muted"></span></label>
-          <input type="number" id="fSteps" inputmode="numeric" placeholder="0" oninput="renderAutoSummary()">
-        </div>
-        <div class="field">
-          <label class="f">ジム / 運動</label>
-          <div class="toggle-group">
-            <div class="chip" id="chGym" onclick="toggleChip('chGym');renderAutoSummary()"><svg class="i" viewBox="0 0 24 24"><path d="M6.5 6.5v11M4 8v7M17.5 6.5v11M20 8v7M6.5 12h11"/></svg>ジム</div>
-          </div>
-        </div>
-        <div class="field" id="partsWrap" style="display:none">
-          <label class="f">鍛えた部位</label>
-          <div class="toggle-group">
-            <div class="chip small" data-part="back" onclick="toggleChip(this)">背中</div>
-            <div class="chip small" data-part="chest" onclick="toggleChip(this)">胸</div>
-            <div class="chip small" data-part="shoulder" onclick="toggleChip(this)">肩</div>
-            <div class="chip small" data-part="legs" onclick="toggleChip(this)">下半身</div>
-          </div>
-        </div>
-        <div class="field"><label class="f">その他の運動</label><input type="text" id="fOther" placeholder="例：Nike Run Club 5km / テニス" oninput="renderAutoSummary()"></div>
+      <h2><span class="dot"></span>食事（カロリミット連携）</h2>
+      <div class="goal-mini" style="margin-top:-4px">摂取エネルギーとPFCは連携で自動更新されます。ずれていたら直接直せます。</div>
+      <div class="auto-summary" id="mealSummary"></div>
+      <div class="row" style="margin-top:11px">
+        <div class="field"><label class="f">エネルギー(kcal) <span class="muted" id="kcalHint"></span></label><input type="number" id="fKcal" inputmode="numeric" placeholder="0" oninput="onFormInput()"></div>
+        <div class="field"><label class="f">たんぱく質(g) <span class="muted" id="protHint"></span></label><input type="number" id="fProt" step="0.1" inputmode="decimal" placeholder="0" oninput="onFormInput()"></div>
       </div>
-    </div>
-
-    <div class="card">
-      <h2><span class="dot"></span>食事</h2>
-      <div class="field"><label class="f">朝食</label><textarea id="fBreak" placeholder="例：卵かけご飯、納豆、キムチ"></textarea></div>
-      <div class="field"><label class="f">昼食</label><textarea id="fLunch"></textarea></div>
-      <div class="field"><label class="f">夕食</label><textarea id="fDinner"></textarea></div>
-      <div class="field"><label class="f">間食・外食</label><textarea id="fSnack"></textarea></div>
       <div class="row">
-        <div class="field"><label class="f">推定カロリー(kcal) <span class="muted" id="kcalHint"></span></label><input type="number" id="fKcal" inputmode="numeric" placeholder="2200"></div>
-        <div class="field"><label class="f">たんぱく質(g) <span class="muted" id="protHint"></span></label><input type="number" id="fProt" inputmode="numeric" placeholder="130"></div>
+        <div class="field"><label class="f">脂質(g) <span class="muted" id="fatHint"></span></label><input type="number" id="fFat" step="0.1" inputmode="decimal" placeholder="0" oninput="onFormInput()"></div>
+        <div class="field"><label class="f">炭水化物(g) <span class="muted" id="carbHint"></span></label><input type="number" id="fCarb" step="0.1" inputmode="decimal" placeholder="0" oninput="onFormInput()"></div>
       </div>
-      <button class="btn ghost mini" onclick="estimateMeals()"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"/></svg>食事内容からカロリー・Pをざっくり見積り</button>
     </div>
 
+    <!-- ④ 運動 -->
     <div class="card">
-      <h2><span class="dot"></span>水分・体調</h2>
+      <h2><span class="dot"></span>運動</h2>
+      <div class="field">
+        <label class="f">歩数（自動） <span id="stepGoalHint" class="muted"></span></label>
+        <input type="number" id="fSteps" inputmode="numeric" placeholder="0" oninput="onFormInput()">
+      </div>
+      <div class="field">
+        <label class="f">有酸素（複数選択できます）</label>
+        <div class="toggle-group">
+          <div class="chip small" data-cardio="run" onclick="toggleChip(this);onFormInput()">ランニング</div>
+          <div class="chip small" data-cardio="walk" onclick="toggleChip(this);onFormInput()">ウォーキング</div>
+        </div>
+      </div>
+      <div class="field"><label class="f">距離(km)（自動）</label><input type="number" id="fDist" step="0.01" inputmode="decimal" placeholder="0" oninput="onFormInput()"></div>
+      <div class="field">
+        <label class="f">ジム</label>
+        <div class="toggle-group">
+          <div class="chip" id="chGym" onclick="toggleChip('chGym');onFormInput()"><svg class="i" viewBox="0 0 24 24"><path d="M6.5 6.5v11M4 8v7M17.5 6.5v11M20 8v7M6.5 12h11"/></svg>ジムに行った</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="f">鍛えた部位（複数選択できます）</label>
+        <div class="toggle-group">
+          <div class="chip small" data-part="chest" onclick="toggleChip(this);onFormInput()">胸</div>
+          <div class="chip small" data-part="shoulder" onclick="toggleChip(this);onFormInput()">肩</div>
+          <div class="chip small" data-part="back" onclick="toggleChip(this);onFormInput()">背中</div>
+          <div class="chip small" data-part="legs" onclick="toggleChip(this);onFormInput()">下半身</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑤ 生活 -->
+    <div class="card">
+      <h2><span class="dot"></span>生活</h2>
       <div class="field">
         <label class="f">水分(L) <span class="muted">目標 <b id="waterGoalHint">1.8</b>L</span></label>
         <div class="stepper">
@@ -239,12 +253,24 @@
           <div class="chip" data-bowel="なし" onclick="pickBowel(this)">なし</div>
         </div>
       </div>
-      <div class="field"><label class="f">便通・体調メモ</label><input type="text" id="fBowelMemo" placeholder="例：張り・ガス多め / 良好"></div>
-      <div class="row">
-        <div class="field"><label class="f">睡眠(h)</label><input type="number" id="fSleep" step="0.5" inputmode="decimal" placeholder="7.5"></div>
-        <div class="field"><label class="f">回復度(1-10)</label><input type="number" id="fRecov" inputmode="numeric" placeholder="8"></div>
+      <div class="field">
+        <label class="f">体重(kg)（自動）</label>
+        <div class="weight-hero">
+          <input type="number" id="fWeight" step="0.1" inputmode="decimal" placeholder="--.-" oninput="onFormInput()">
+          <span class="unit">kg</span>
+        </div>
+        <div class="goal-mini" id="weightNote"></div>
       </div>
-      <div class="field"><label class="f">ひとことメモ</label><input type="text" id="fNote" placeholder="なんでも"></div>
+      <div class="goal-mini" id="extraNote" style="cursor:pointer;margin-top:12px" onclick="toggleExtra()">▸ その他（睡眠・回復度・メモ）</div>
+      <div id="extraWrap" style="display:none;margin-top:10px">
+        <div class="row">
+          <div class="field"><label class="f">睡眠(h)</label><input type="number" id="fSleep" step="0.5" inputmode="decimal" placeholder="7.5"></div>
+          <div class="field"><label class="f">回復度(1-10)</label><input type="number" id="fRecov" inputmode="numeric" placeholder="8"></div>
+        </div>
+        <div class="field"><label class="f">便通・体調メモ</label><input type="text" id="fBowelMemo" placeholder="例：張り・ガス多め / 良好"></div>
+        <div class="field"><label class="f">その他の運動</label><input type="text" id="fOther" placeholder="例：テニス"></div>
+        <div class="field"><label class="f">ひとことメモ</label><input type="text" id="fNote" placeholder="なんでも"></div>
+      </div>
     </div>
 
     <button class="btn" onclick="saveEntry()">この日を記録する</button>
@@ -308,6 +334,10 @@
         <div class="field"><label class="f">カロリー下限</label><input type="number" id="gKcalLo"></div>
         <div class="field"><label class="f">カロリー上限</label><input type="number" id="gKcalHi"></div>
       </div>
+      <div class="row">
+        <div class="field"><label class="f">脂質/日(g・上限)</label><input type="number" id="gFat" step="0.1"></div>
+        <div class="field"><label class="f">炭水化物/日(g・上限)</label><input type="number" id="gCarb" step="0.1"></div>
+      </div>
       <div class="field"><label class="f">ジム/週</label><input type="number" id="gGym"></div>
       <button class="btn mini" onclick="saveGoals()">目標を保存</button>
     </div>
@@ -322,15 +352,16 @@
     </div>
 
     <div class="card">
-      <h2><span class="dot"></span>ヘルスケア連携（1日の終わりに自動記録）</h2>
+      <h2><span class="dot"></span>ヘルスケア連携（1日5回の自動記録）</h2>
       <p class="muted" style="line-height:1.8">
-      <b>①出力をオン：</b>OMRON connectで体重を、Nike Run Clubでランニングを、それぞれAppleヘルスケアへ書き出す設定をオンにします（歩数はiPhoneが自動集計）。<br>
-      <b>②ショートカット作成：</b>「ショートカット」アプリで、ヘルスケアから <b>体重（最新1件）・歩数（今日の合計）・当日のランニング距離・ワークアウト</b> を取得。「テキスト」で次を作成：<br>
-      <code>d=[今日の日付];w=[体重];s=[歩数];r=[ラン距離];o=[運動名]</code><br>
+      <b>①出力をオン：</b>体重計アプリで体重を、ランアプリでランニングを、カロリミットで食事（エネルギー・PFC）を、それぞれAppleヘルスケアへ書き出す設定をオンにします（歩数はiPhoneが自動集計）。<br>
+      <b>②ショートカット作成：</b>「ショートカット」アプリで、ヘルスケアから <b>体重・歩数・有酸素距離・摂取エネルギー・たんぱく質・脂質・炭水化物</b> を取得し、「テキスト」で次を作成：<br>
+      <code>w=[体重];s=[歩数];r=[距離];e=[エネルギー];p=[たんぱく質];f=[脂質];c=[炭水化物]</code><br>
       最後に「URLを開く」で <code>[このアプリのURL]#[上のテキスト]</code> を開く。<br>
-      <b>③自動化：</b>「オートメーション」→個人用→<b>時刻（毎日23:50など）</b>→上のショートカットを実行。「実行の前に尋ねる」をオフにすると、1日の終わりにアプリが自動で開き、体重・歩数・運動が保存されます。<br>
-      ※ロック中は次にロック解除した時に記録されます。うまくいかない時は、そのショートカットを手動実行するか、今日タブの「いま取り込む」でも取り込めます（クリップボード経由）。<br>
-      ※手入力するのは<b>食事・水分・体調</b>だけ。これらは1日の終わりまでに入れ、抜けた日は日付タブの「入力漏れの日」から遡って入力できます。
+      <b>③自動化：</b>「オートメーション」→個人用→<b>時刻</b>→上のショートカットを実行。<b>12時・15時・18時・21時・23:55</b>の5回に設定すると、日中に開くたび「あと何をすればいいか」が最新の数字で分かります。「実行の前に尋ねる」はオフに。<br>
+      ※日付を省略すると、開いた日の記録として保存されます（`d=` を付ければその日付に入ります）。<br>
+      ※ロック中は次にロック解除した時に記録されます。うまくいかない時は、ショートカットを手動実行するか、今日タブの「いま取り込む」でも取り込めます（クリップボード経由）。<br>
+      ※手入力するのは<b>水分・便通</b>だけ。抜けた日は日付欄の「入力漏れの日」から遡って入力できます。
       </p>
     </div>
 
@@ -345,8 +376,8 @@
     <div class="card">
       <h2><span class="dot"></span>評価点の仕組み</h2>
       <p class="muted" style="line-height:1.7">
-      運動25点（アクティブ15＋歩数10）／食事35点（たんぱく質15＋カロリー20）／水分20点／便通10点／記録10点。<br>
-      結果（体重）だけでなく「今日どう動いたか」を評価します。数字が少し前後しても、続けることが一番の得点源です。
+      食事40点（エネルギー15＋たんぱく質15＋脂質5＋炭水化物5）／運動30点（歩数15＋アクティブ15）／水分20点／便通10点。<br>
+      体重は「結果」なので点数に入れません。歩数・水分・エネルギー・PFCなど<b>自分でコントロールできる行動</b>だけを評価します。脂質と炭水化物は上限を超えないほど高得点です。
       </p>
     </div>
     <p class="muted" style="text-align:center;margin:18px 0">ホーム画面に追加すると、アプリのように使えます。</p>
@@ -366,10 +397,22 @@
 <script>
 /* ============ ストレージ ============ */
 const KEY='diet_log_v1';
+const DEFAULT_GOALS={targetWeight:72.5,steps:7000,gym:3,protein:130,water:1.8,kcalLo:1900,kcalHi:2300,fat:60,carbs:250};
 let store=load();
 function load(){
-  try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r);}catch(e){}
+  try{const r=localStorage.getItem(KEY);if(r)return migrate(JSON.parse(r));}catch(e){}
   return seed();
+}
+// 旧データ互換：目標の新項目を補い、旧run/walkを距離+種別へ移す（既存の項目は消さない）
+function migrate(s){
+  if(!s||typeof s!=='object'||!s.entries)return seed();
+  s.goals=Object.assign({},DEFAULT_GOALS,s.goals||{});
+  Object.values(s.entries).forEach(e=>{
+    if(!e)return;
+    if(!has(e.dist)&&(has(e.run)||has(e.walk)))e.dist=Math.round((num(e.run)+num(e.walk))*100)/100;
+    if(!e.cardio){const c={};if(num(e.run)>0)c.run=1;if(num(e.walk)>0)c.walk=1;if(Object.keys(c).length)e.cardio=c;}
+  });
+  return s;
 }
 function persist(){
   try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}
@@ -379,30 +422,40 @@ function has(x){return x!==''&&x!==null&&x!==undefined;}
 
 /* ============ 初期データ（目標値のみ・記録は空スタート） ============ */
 function seed(){
-  const g={targetWeight:72.5,steps:7000,gym:3,protein:130,water:1.8,kcalLo:1900,kcalHi:2300};
-  return {goals:g,entries:{}};
+  return {goals:Object.assign({},DEFAULT_GOALS),entries:{}};
 }
 
 /* ============ スコア計算 ============ */
+// 上限型（少ないほど良い）の配点：目標以下で満点、超えるほど減点
+function capPt(v,goal,max){
+  if(!has(v))return 0;
+  const x=num(v);if(!goal)return max;
+  if(x<=goal)return max;
+  if(x<=goal*1.2)return Math.round(max*0.6);
+  return Math.round(max*0.2);
+}
 function calcScore(en){
   const g=store.goals;
-  const active=(en.gym||(num(en.run)+num(en.walk))>0||(en.other&&String(en.other).trim()))?15:0;
-  const stepPt=Math.min(10,Math.round(num(en.steps)/g.steps*10));
-  const ex=active+stepPt;
-  const protPt=has(en.protein)?Math.min(15,Math.round(num(en.protein)/g.protein*15)):0;
-  let calPt=0;const c=num(en.kcal);
+  // 食事40：エネルギー15＋たんぱく質15＋脂質5＋炭水化物5
+  let ePt=0;const c=num(en.kcal);
   if(has(en.kcal)){
-    if(c>=g.kcalLo&&c<=g.kcalHi)calPt=20;
-    else if((c>=g.kcalLo-400&&c<g.kcalLo)||(c>g.kcalHi&&c<=g.kcalHi+400))calPt=13;
-    else calPt=6;
+    if(c>=g.kcalLo&&c<=g.kcalHi)ePt=15;
+    else if((c>=g.kcalLo-400&&c<g.kcalLo)||(c>g.kcalHi&&c<=g.kcalHi+400))ePt=10;
+    else ePt=4;
   }
-  const food=protPt+calPt;
+  const protPt=has(en.protein)?Math.min(15,Math.round(num(en.protein)/g.protein*15)):0;
+  const fatPt=capPt(en.fat,g.fat,5);
+  const carbPt=capPt(en.carbs,g.carbs,5);
+  const food=ePt+protPt+fatPt+carbPt;
+  // 運動30：歩数15＋アクティブ15
+  const stepPt=Math.min(15,Math.round(num(en.steps)/g.steps*15));
+  const active=(en.gym||num(en.dist)>0||(num(en.run)+num(en.walk))>0||(en.other&&String(en.other).trim()))?15:0;
+  const ex=stepPt+active;
+  // 水分20 / 便通10
   const water=has(en.water)?Math.min(20,Math.round(num(en.water)/g.water*20)):0;
   const bowel=en.bowel==='あり'?10:en.bowel==='なし'?5:0;
-  const anyMeal=en.breakfast||en.lunch||en.dinner||en.snack;
-  const rec=(has(en.weight)||anyMeal)?10:0;
-  const total=ex+food+water+bowel+rec;
-  return {total,ex,food,water,bowel,rec,active,stepPt,protPt,calPt};
+  const total=food+ex+water+bowel;
+  return {total,food,ex,water,bowel,ePt,protPt,fatPt,carbPt,stepPt,active};
 }
 function ratingLabel(t){
   if(t>=88)return['非常に良い','#16a34a'];
@@ -424,31 +477,40 @@ function nav(v){
 
 /* ============ 入力補助 ============ */
 let bowelPick='';
+let curSync='';           // その日の最終連携時刻（HH:MM）
 function toggleChip(el){
   if(typeof el==='string')el=document.getElementById(el);
   el.classList.toggle('on');
-  if(el.id==='chGym')document.getElementById('partsWrap').style.display=el.classList.contains('on')?'block':'none';
+  // 部位を選んだら自動でジムをONにする
+  if(el.dataset&&el.dataset.part){
+    const any=[...document.querySelectorAll('[data-part]')].some(p=>p.classList.contains('on'));
+    if(any)document.getElementById('chGym').classList.add('on');
+  }
 }
 function pickBowel(el){
   const v=el.dataset.bowel;
   document.querySelectorAll('[data-bowel]').forEach(x=>x.classList.remove('on'));
   if(bowelPick===v){bowelPick='';}else{bowelPick=v;el.classList.add('on');}
+  onFormInput();
 }
 let waterCur=0;
-function bumpWater(d){waterCur=Math.max(0,Math.round((waterCur+d)*10)/10);document.getElementById('waterVal').textContent=waterCur.toFixed(1);}
-
-function estimateMeals(){
-  // ごく簡易のヒント（正確な計算ではなく目安）
-  showToast('食事量に幅があるので、迷ったら朝600/昼700/夕700kcal・P各30〜40gを目安に。詳しくはコーチに相談を。');
+function bumpWater(d){
+  waterCur=Math.max(0,Math.round((waterCur+d)*10)/10);
+  document.getElementById('waterVal').textContent=waterCur.toFixed(1);
+  onFormInput();
+}
+function toggleExtra(){
+  const m=document.getElementById('extraWrap');const open=m.style.display==='none';
+  m.style.display=open?'block':'none';
+  document.getElementById('extraNote').innerHTML=(open?'▾':'▸')+' その他（睡眠・回復度・メモ）';
 }
 
 /* ============ ヘルスケア取り込み（クリップボード / URL） ============ */
 function normDate(s){const p=s.replace(/\//g,'-').split('-');if(p.length<3)return null;return p[0]+'-'+p[1].padStart(2,'0')+'-'+p[2].padStart(2,'0');}
-function toggleManual(){
-  const m=document.getElementById('manualAuto');const open=m.style.display==='none';
-  m.style.display=open?'block':'none';
-  document.getElementById('healthNote').innerHTML=(open?'▾':'▸')+' 取れなかった時に手動で修正・入力する';
-}
+// ヘルスケアの値は小数が長いので丸める
+function r1(x){return Math.round(parseFloat(x)*10)/10;}
+function r2(x){return Math.round(parseFloat(x)*100)/100;}
+function nowHM(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
 async function importFromHealth(){
   let txt='';
   try{ txt=await navigator.clipboard.readText(); }
@@ -458,35 +520,44 @@ async function importFromHealth(){
 }
 // ヘルスケア文字列を現在のフォームに反映（保存はしない）。取り込めた項目があれば true
 function applyHealthText(txt,notify){
-  let w=null,s=null,d=null,r=null,k=null,g=null,o=null,m;
+  let w=null,s=null,d=null,r=null,k=null,g=null,o=null,e=null,p=null,f=null,c=null,m;
   if(m=txt.match(/(?:^|[;\s])w\s*[=:]\s*([\d.]+)/i))w=m[1];
-  if(m=txt.match(/(?:^|[;\s])s\s*[=:]\s*([\d,]+)/i))s=m[1].replace(/,/g,'');
+  if(m=txt.match(/(?:^|[;\s])s\s*[=:]\s*([\d,.]+)/i))s=m[1].replace(/,/g,'');
   if(m=txt.match(/(?:^|[;\s])r\s*[=:]\s*([\d.]+)/i))r=m[1];
   if(m=txt.match(/(?:^|[;\s])k\s*[=:]\s*([\d.]+)/i))k=m[1];
+  if(m=txt.match(/(?:^|[;\s])e\s*[=:]\s*([\d,.]+)/i))e=m[1].replace(/,/g,'');
+  if(m=txt.match(/(?:^|[;\s])p\s*[=:]\s*([\d.]+)/i))p=m[1];
+  if(m=txt.match(/(?:^|[;\s])f\s*[=:]\s*([\d.]+)/i))f=m[1];
+  if(m=txt.match(/(?:^|[;\s])c\s*[=:]\s*([\d.]+)/i))c=m[1];
   if(m=txt.match(/(?:^|[;\s])g\s*[=:]\s*(1|true|あり)/i))g=true;
   if(m=txt.match(/(?:^|[;\s])o\s*[=:]\s*([^;]+)/i))o=m[1].trim();
   if(m=txt.match(/(?:^|[;\s])d\s*[=:]\s*(\d{4}[-\/]\d{1,2}[-\/]\d{1,2})/i))d=normDate(m[1]);
   // キーが一切無い場合のみ、素の数字2つ（体重・歩数）を拾う
-  if(w===null&&s===null&&r===null&&o===null){
+  if(w===null&&s===null&&r===null&&o===null&&e===null&&p===null&&f===null&&c===null){
     const nums=txt.replace(/,/g,'').match(/\d+(\.\d+)?/g);
     if(nums&&nums.length>=2){w=nums[0];s=String(Math.round(parseFloat(nums[1])));}
     else if(nums&&nums.length===1){w=nums[0];}
   }
   if(d)document.getElementById('fDate').value=d;
-  if(w!==null)document.getElementById('fWeight').value=parseFloat(w);
-  if(s!==null)document.getElementById('fSteps').value=parseInt(s,10);
-  if(r!==null)document.getElementById('fRun').value=parseFloat(r);
-  if(k!==null)document.getElementById('fWalk').value=parseFloat(k);
-  if(g){document.getElementById('chGym').classList.add('on');document.getElementById('partsWrap').style.display='block';}
+  if(w!==null)document.getElementById('fWeight').value=r1(w);
+  if(s!==null)document.getElementById('fSteps').value=Math.round(parseFloat(s));
+  // 有酸素距離：r（ラン+ウォーク合計）に、旧形式の k があれば足す
+  if(r!==null||k!==null)document.getElementById('fDist').value=r2((r!==null?parseFloat(r):0)+(k!==null?parseFloat(k):0));
+  if(e!==null)document.getElementById('fKcal').value=Math.round(parseFloat(e));
+  if(p!==null)document.getElementById('fProt').value=r1(p);
+  if(f!==null)document.getElementById('fFat').value=r1(f);
+  if(c!==null)document.getElementById('fCarb').value=r1(c);
+  if(g)document.getElementById('chGym').classList.add('on');
   if(o!==null)document.getElementById('fOther').value=o;
-  updateDateNote();renderAutoSummary();
-  const got=(w!==null||s!==null||r!==null||k!==null||g||o!==null);
+  updateDateNote();onFormInput();
+  const got=(w!==null||s!==null||r!==null||k!==null||g||o!==null||e!==null||p!==null||f!==null||c!==null);
   if(notify){
     const parts=[];
-    if(w!==null)parts.push('体重'+parseFloat(w)+'kg');
-    if(s!==null)parts.push('歩数'+parseInt(s,10).toLocaleString());
-    if(r!==null&&parseFloat(r)>0)parts.push('ラン'+parseFloat(r)+'km');
-    if(o!==null)parts.push('運動'+o);
+    if(w!==null)parts.push('体重'+r1(w)+'kg');
+    if(s!==null)parts.push('歩数'+Math.round(parseFloat(s)).toLocaleString());
+    if(r!==null&&parseFloat(r)>0)parts.push('有酸素'+r2(r)+'km');
+    if(e!==null)parts.push('E'+Math.round(parseFloat(e))+'kcal');
+    if(p!==null)parts.push('P'+r1(p)+'g');
     showToast(got?('取り込みました：'+parts.join(' / ')+'。確認して保存を'):'数値を読み取れませんでした');
   }
   return got;
@@ -499,26 +570,63 @@ function handleIncomingData(txt){
   else{resetForm();document.getElementById('fDate').value=target;updateDateNote();}
   const got=applyHealthText(txt,false);
   nav('today');
-  if(got){saveEntry();showToast('ヘルスケアから自動記録しました');}
+  if(got){
+    curSync=nowHM();               // 1日に何度でも取り込める。最終連携時刻を残す
+    saveEntry(true);
+    showToast('連携しました（'+curSync+'）。今日の残りは上のバーで確認できます');
+  }
 }
-// 自動取得サマリー（読み取り専用の表示）
-function renderAutoSummary(){
-  const el=document.getElementById('autoSummary');if(!el)return;
-  const w=document.getElementById('fWeight').value,s=document.getElementById('fSteps').value;
-  const r=document.getElementById('fRun').value,k=document.getElementById('fWalk').value;
-  const gym=document.getElementById('chGym').classList.contains('on'),o=document.getElementById('fOther').value;
+/* ============ 今日の進捗（あと何をすればいいか） ============ */
+// フォームの現在値から仮エントリを作る。保存前でも進捗が見える
+function currentDraft(){
+  const parts={};document.querySelectorAll('[data-part]').forEach(p=>{if(p.classList.contains('on'))parts[p.dataset.part]=1;});
+  const cardio={};document.querySelectorAll('[data-cardio]').forEach(p=>{if(p.classList.contains('on'))cardio[p.dataset.cardio]=1;});
+  const v=id=>{const el=document.getElementById(id);return el?el.value:'';};
+  const gymEl=document.getElementById('chGym');
+  return {date:v('fDate'),weight:v('fWeight'),steps:v('fSteps'),dist:v('fDist'),cardio,
+    gym:!!(gymEl&&gymEl.classList.contains('on')),parts,other:v('fOther'),
+    kcal:v('fKcal'),protein:v('fProt'),fat:v('fFat'),carbs:v('fCarb'),
+    water:waterCur>0?waterCur:'',bowel:bowelPick};
+}
+function fmtRest(x,dec){return dec?Math.max(0,x).toFixed(dec):Math.round(Math.max(0,x)).toLocaleString();}
+function renderProgress(){
+  const el=document.getElementById('progList');if(!el)return;
+  const g=store.goals,e=currentDraft();
+  // [ラベル, 現在値, 目標, 単位, 小数桁, 上限型(少ないほど良い)]
+  const rows=[
+    ['歩数',num(e.steps),g.steps,'歩',0,false],
+    ['水分',num(e.water),g.water,'L',1,false],
+    ['エネルギー',num(e.kcal),g.kcalHi,'kcal',0,true],
+    ['たんぱく質',num(e.protein),g.protein,'g',0,false],
+    ['脂質',num(e.fat),g.fat,'g',1,true],
+    ['炭水化物',num(e.carbs),g.carbs,'g',1,true]
+  ];
+  el.innerHTML=rows.map(function(row){
+    const lab=row[0],v=row[1],goal=row[2],unit=row[3],dec=row[4],isCap=row[5];
+    const pct=goal>0?Math.min(100,v/goal*100):0;
+    const over=isCap&&v>goal, done=!isCap&&v>0&&v>=goal;
+    let txt;
+    if(over)txt='+'+fmtRest(v-goal,dec)+unit;
+    else if(done)txt='達成';
+    else txt=(isCap?'のこり':'あと')+fmtRest(goal-v,dec)+unit;
+    return '<div class="pg"><span class="lab">'+lab+'</span><div class="track"><div class="fill'+(over?' over':'')+'" style="width:'+pct+'%"></div></div>'+
+      '<span class="rest '+(over?'over':done?'done':'')+'">'+txt+'</span></div>';
+  }).join('');
+  const sn=document.getElementById('syncNote');if(sn)sn.textContent=curSync?('最終連携 '+curSync):'未連携';
+}
+// 食事カードのE/P/F/Cチップ
+function renderMealSummary(){
+  const el=document.getElementById('mealSummary');if(!el)return;
+  const e=currentDraft();
   const chip=(l,v,empty)=>`<span class="ac-chip${empty?' empty':''}"><b>${l}</b>${v}</span>`;
-  const out=[];
-  out.push(chip('体重',has(w)?parseFloat(w)+'kg':'未取得',!has(w)));
-  out.push(chip('歩数',has(s)?parseInt(s,10).toLocaleString():'未取得',!has(s)));
-  const exParts=[];
-  if(has(r)&&parseFloat(r)>0)exParts.push('ラン'+parseFloat(r)+'km');
-  if(has(k)&&parseFloat(k)>0)exParts.push('歩行'+parseFloat(k)+'km');
-  if(gym)exParts.push('ジム');
-  if(o&&o.trim())exParts.push(o.length>12?o.slice(0,12)+'…':o);
-  out.push(chip('運動',exParts.length?exParts.join('・'):'なし',!exParts.length));
-  el.innerHTML=out.join('');
+  el.innerHTML=[
+    chip('E',has(e.kcal)?Math.round(num(e.kcal))+'kcal':'未連携',!has(e.kcal)),
+    chip('P',has(e.protein)?num(e.protein)+'g':'--',!has(e.protein)),
+    chip('F',has(e.fat)?num(e.fat)+'g':'--',!has(e.fat)),
+    chip('C',has(e.carbs)?num(e.carbs)+'g':'--',!has(e.carbs))
+  ].join('');
 }
+function onFormInput(){renderProgress();renderMealSummary();updateKpi();}
 // 入力漏れ（食事も水分も未入力）の日を直近7日から拾い、遡り入力の導線を出す
 function renderMissingDays(){
   const el=document.getElementById('missingDays');if(!el)return;
@@ -527,7 +635,7 @@ function renderMissingDays(){
     const dt=new Date(base);dt.setDate(dt.getDate()-i);
     const ds=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
     const e=store.entries[ds];
-    const incomplete=!e||(!e.breakfast&&!e.lunch&&!e.dinner&&!e.snack&&!has(e.water));
+    const incomplete=!e||(!has(e.kcal)&&!has(e.water));
     if(incomplete)chips.push(ds);
   }
   if(!chips.length){el.innerHTML='<span class="goal-mini">直近の入力漏れはありません</span>';return;}
@@ -536,54 +644,42 @@ function renderMissingDays(){
 }
 function jumpDate(ds){
   if(store.entries[ds])editEntry(ds);
-  else{resetForm();document.getElementById('fDate').value=ds;updateDateNote();renderAutoSummary();}
+  else{resetForm();document.getElementById('fDate').value=ds;updateDateNote();onFormInput();}
   window.scrollTo(0,0);
 }
 function resetForm(){
-  ['fWeight','fRun','fWalk','fSteps','fOther','fBreak','fLunch','fDinner','fSnack','fKcal','fProt','fBowelMemo','fSleep','fRecov','fNote'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['fWeight','fSteps','fDist','fOther','fKcal','fProt','fFat','fCarb','fBowelMemo','fSleep','fRecov','fNote'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('chGym').classList.remove('on');
-  document.getElementById('partsWrap').style.display='none';
   document.querySelectorAll('[data-part]').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('[data-cardio]').forEach(p=>p.classList.remove('on'));
   waterCur=0;document.getElementById('waterVal').textContent='0.0';
   bowelPick='';document.querySelectorAll('[data-bowel]').forEach(x=>x.classList.remove('on'));
+  curSync='';
   document.getElementById('resultCard').style.display='none';
-  renderAutoSummary();
+  onFormInput();
 }
 
 /* ============ 保存 ============ */
 function readForm(){
-  const parts={};document.querySelectorAll('[data-part]').forEach(p=>{if(p.classList.contains('on'))parts[p.dataset.part]=1;});
-  return {
-    date:document.getElementById('fDate').value,
-    weight:document.getElementById('fWeight').value,
-    run:document.getElementById('fRun').value,
-    walk:document.getElementById('fWalk').value,
-    steps:document.getElementById('fSteps').value,
-    gym:document.getElementById('chGym').classList.contains('on'),
-    parts,
-    other:document.getElementById('fOther').value,
-    breakfast:document.getElementById('fBreak').value,
-    lunch:document.getElementById('fLunch').value,
-    dinner:document.getElementById('fDinner').value,
-    snack:document.getElementById('fSnack').value,
-    kcal:document.getElementById('fKcal').value,
-    protein:document.getElementById('fProt').value,
-    water:waterCur>0?waterCur:'',
-    bowel:bowelPick,
+  const d=currentDraft();
+  const prev=store.entries[d.date]||{};   // 旧項目（食事メモ等）は消さずに引き継ぐ
+  return Object.assign({},prev,d,{
+    run:'',walk:'',                        // 距離は dist に一本化
     bowelMemo:document.getElementById('fBowelMemo').value,
     sleep:document.getElementById('fSleep').value,
     recovery:document.getElementById('fRecov').value,
-    note:document.getElementById('fNote').value
-  };
+    note:document.getElementById('fNote').value,
+    lastSync:curSync
+  });
 }
-function saveEntry(){
+function saveEntry(silent){
   const en=readForm();
   if(!en.date){showToast('日付を選んでください');return;}
   store.entries[en.date]=en;persist();
   const sc=calcScore(en);
   showResult(en,sc);
-  updateKpi();renderMissingDays();renderAutoSummary();
-  showToast('記録しました');
+  updateKpi();renderMissingDays();onFormInput();
+  if(!silent)showToast('記録しました');
 }
 function showResult(en,sc){
   const [lab,col]=ratingLabel(sc.total);
@@ -591,7 +687,7 @@ function showResult(en,sc){
   document.getElementById('scNum').textContent=sc.total;
   document.getElementById('scNum').style.color=col;
   const ll=document.getElementById('scLab');ll.textContent=lab;ll.style.color=col;
-  const bars=[['運動',sc.ex,25],['食事',sc.food,35],['水分',sc.water,20],['便通',sc.bowel,10],['記録',sc.rec,10]];
+  const bars=[['食事',sc.food,40],['運動',sc.ex,30],['水分',sc.water,20],['便通',sc.bowel,10]];
   document.getElementById('scBars').innerHTML=bars.map(b=>
     `<div class="sb"><span>${b[0]}</span><div class="track"><div class="fill" style="width:${b[1]/b[2]*100}%"></div></div><span class="n">${b[1]}/${b[2]}</span></div>`).join('');
   document.getElementById('coachBox').innerHTML=coachMessage(en,sc);
@@ -631,21 +727,18 @@ function avgWeight7(dateStr){
 function recentN(n){
   const all=sortedEntries();return all.slice(-n);
 }
+// ヘッダー：体重ではなく「今日の総合点数」と、コントロールできる科目の残りを出す
 function updateKpi(){
-  const all=sortedEntries();
-  const wEntries=all.filter(e=>has(e.weight));
-  const latest=wEntries.length?num(wEntries[wEntries.length-1].weight):'--';
-  const last7=wEntries.slice(-7);
-  const avg7=last7.length?(last7.reduce((s,e)=>s+num(e.weight),0)/last7.length):null;
-  const g=store.goals;
-  const diff=avg7!==null?(avg7-g.targetWeight):null;
-  const strip=document.getElementById('kpiStrip');
+  const g=store.goals,e=currentDraft(),sc=calcScore(e);
+  const rest=(v,goal)=>Math.max(0,goal-num(v));
+  const steps=rest(e.steps,g.steps),water=rest(e.water,g.water),prot=rest(e.protein,g.protein);
+  const strip=document.getElementById('kpiStrip');if(!strip)return;
   strip.innerHTML=`
-    <div class="k"><div class="v">${latest==='--'?'--':latest.toFixed(1)}</div><div class="l">最新体重</div></div>
-    <div class="k"><div class="v">${avg7!==null?avg7.toFixed(1):'--'}</div><div class="l">7日平均</div></div>
-    <div class="k"><div class="v">${diff!==null?(diff>0?'+':'')+diff.toFixed(1):'--'}</div><div class="l">目標まで</div></div>
-    <div class="k"><div class="v">${streakCount()}</div><div class="l">連続記録</div></div>`;
-  document.getElementById('hGoal').textContent=g.targetWeight;
+    <div class="k"><div class="v big">${sc.total}</div><div class="l">今日の点数</div></div>
+    <div class="k"><div class="v">${steps>0?Math.round(steps).toLocaleString():'達成'}</div><div class="l">歩数のこり</div></div>
+    <div class="k"><div class="v">${water>0?water.toFixed(1):'達成'}</div><div class="l">水分のこり(L)</div></div>
+    <div class="k"><div class="v">${prot>0?Math.round(prot):'達成'}</div><div class="l">Pのこり(g)</div></div>`;
+  const hg=document.getElementById('hGoal');if(hg)hg.textContent=g.targetWeight;
 }
 function streakCount(){
   // 最新の記録日から連続で記録がある日数
@@ -707,9 +800,14 @@ function renderWeek(){
   const wat=r.filter(e=>has(e.water));const avgWa=wat.length?wat.reduce((s,e)=>s+num(e.water),0)/wat.length:null;
   const stp=r.filter(e=>has(e.steps));const avgS=stp.length?stp.reduce((s,e)=>s+num(e.steps),0)/stp.length:null;
   const gymC=r.filter(e=>e.gym).length;
+  const avgOf=key=>{const a=r.filter(e=>has(e[key]));return a.length?a.reduce((s,e)=>s+num(e[key]),0)/a.length:null;};
+  const avgE=avgOf('kcal'),avgF=avgOf('fat'),avgC=avgOf('carbs');
   const rows=[
     ['平均体重',avgW!==null?avgW.toFixed(2)+' kg':'--',null],
+    ['平均エネルギー',avgE!==null?Math.round(avgE)+' kcal':'--',avgE!==null?(avgE>=g.kcalLo&&avgE<=g.kcalHi?'g':'w'):null,g.kcalLo+'〜'+g.kcalHi],
     ['平均たんぱく質',avgP!==null?Math.round(avgP)+' g':'--',avgP!==null?(avgP>=g.protein?'g':avgP>=g.protein*0.85?'w':'b'):null,'目標'+g.protein],
+    ['平均脂質',avgF!==null?avgF.toFixed(1)+' g':'--',avgF!==null?(avgF<=g.fat?'g':avgF<=g.fat*1.2?'w':'b'):null,'上限'+g.fat],
+    ['平均炭水化物',avgC!==null?avgC.toFixed(1)+' g':'--',avgC!==null?(avgC<=g.carbs?'g':avgC<=g.carbs*1.2?'w':'b'):null,'上限'+g.carbs],
     ['平均水分',avgWa!==null?avgWa.toFixed(2)+' L':'--',avgWa!==null?(avgWa>=g.water?'g':avgWa>=g.water*0.8?'w':'b'):null,'目標'+g.water],
     ['平均歩数',avgS!==null?Math.round(avgS).toLocaleString():'--',avgS!==null?(avgS>=g.steps?'g':avgS>=g.steps*0.8?'w':'b'):null,'目標'+g.steps],
     ['ジム回数',gymC+' 回',gymC>=g.gym?'g':gymC>=2?'w':'b','目標'+g.gym]
@@ -722,8 +820,12 @@ function renderHist(){
   document.getElementById('histCount').textContent=`(${all.length}日)`;
   document.getElementById('histList').innerHTML=all.map(e=>{
     const sc=calcScore(e);const [lab,col]=ratingLabel(sc.total);
-    const tags=[];if(e.gym)tags.push('ジム');if(num(e.run)>0)tags.push('走'+e.run+'km');if(e.other)tags.push('運動');
-    if(has(e.protein))tags.push('P'+e.protein);if(has(e.water))tags.push(e.water+'L');
+    const tags=[];if(e.gym)tags.push('ジム');
+    const dist=has(e.dist)?num(e.dist):(num(e.run)+num(e.walk));
+    if(dist>0)tags.push(dist+'km');
+    if(has(e.kcal))tags.push(Math.round(num(e.kcal))+'kcal');
+    if(has(e.protein))tags.push('P'+Math.round(num(e.protein)));
+    if(has(e.water))tags.push(e.water+'L');
     return `<div class="hist-item" onclick="editEntry('${e.date}')">
       <span class="d">${e.date.slice(5).replace('-','/')}</span>
       <span class="w">${has(e.weight)?num(e.weight).toFixed(1):'--'}<span class="muted" style="font-size:10px">kg</span></span>
@@ -735,27 +837,25 @@ function editEntry(date){
   const e=store.entries[date];if(!e)return;
   nav('today');
   document.getElementById('fDate').value=e.date;
-  document.getElementById('fWeight').value=e.weight;
-  document.getElementById('fRun').value=e.run;
-  document.getElementById('fWalk').value=e.walk;
-  document.getElementById('fSteps').value=e.steps;
+  document.getElementById('fWeight').value=e.weight||'';
+  document.getElementById('fSteps').value=e.steps||'';
+  document.getElementById('fDist').value=has(e.dist)?e.dist:((num(e.run)+num(e.walk))||'');
+  document.querySelectorAll('[data-cardio]').forEach(p=>p.classList.toggle('on',!!(e.cardio&&e.cardio[p.dataset.cardio])));
   document.getElementById('chGym').classList.toggle('on',!!e.gym);
-  document.getElementById('partsWrap').style.display=e.gym?'block':'none';
   document.querySelectorAll('[data-part]').forEach(p=>p.classList.toggle('on',!!(e.parts&&e.parts[p.dataset.part])));
   document.getElementById('fOther').value=e.other||'';
-  document.getElementById('fBreak').value=e.breakfast||'';
-  document.getElementById('fLunch').value=e.lunch||'';
-  document.getElementById('fDinner').value=e.dinner||'';
-  document.getElementById('fSnack').value=e.snack||'';
-  document.getElementById('fKcal').value=e.kcal;
-  document.getElementById('fProt').value=e.protein;
+  document.getElementById('fKcal').value=e.kcal||'';
+  document.getElementById('fProt').value=e.protein||'';
+  document.getElementById('fFat').value=e.fat||'';
+  document.getElementById('fCarb').value=e.carbs||'';
   waterCur=num(e.water);document.getElementById('waterVal').textContent=waterCur.toFixed(1);
   bowelPick=e.bowel||'';document.querySelectorAll('[data-bowel]').forEach(x=>x.classList.toggle('on',x.dataset.bowel===e.bowel));
   document.getElementById('fBowelMemo').value=e.bowelMemo||'';
   document.getElementById('fSleep').value=e.sleep||'';
   document.getElementById('fRecov').value=e.recovery||'';
   document.getElementById('fNote').value=e.note||'';
-  renderAutoSummary();
+  curSync=e.lastSync||'';
+  onFormInput();
   const sc=calcScore(e);showResult(e,sc);
 }
 
@@ -801,22 +901,25 @@ function renderCoach(){
 function fillGoals(){
   const g=store.goals;
   gWeight.value=g.targetWeight;gSteps.value=g.steps;gProt.value=g.protein;gWater.value=g.water;
-  gKcalLo.value=g.kcalLo;gKcalHi.value=g.kcalHi;gGym.value=g.gym;
+  gKcalLo.value=g.kcalLo;gKcalHi.value=g.kcalHi;gFat.value=g.fat;gCarb.value=g.carbs;gGym.value=g.gym;
   document.getElementById('expDate').value=todayStr();
 }
 function saveGoals(){
   store.goals={targetWeight:num(gWeight.value),steps:num(gSteps.value),protein:num(gProt.value),
-    water:num(gWater.value),kcalLo:num(gKcalLo.value),kcalHi:num(gKcalHi.value),gym:num(gGym.value)};
-  persist();updateKpi();refreshHints();showToast('目標を保存しました');
+    water:num(gWater.value),kcalLo:num(gKcalLo.value),kcalHi:num(gKcalHi.value),
+    fat:num(gFat.value),carbs:num(gCarb.value),gym:num(gGym.value)};
+  persist();updateKpi();refreshHints();onFormInput();showToast('目標を保存しました');
 }
+function cardioLabel(e){const c=e.cardio||{};const a=[];if(c.run)a.push('ランニング');if(c.walk)a.push('ウォーキング');return a.join('・');}
 function rowFor(date){
   const e=store.entries[date];if(!e)return null;
   const sc=calcScore(e);const [lab]=ratingLabel(sc.total);
   const p=e.parts||{};
-  const cols=[e.date,e.weight,e.run,e.walk,e.steps,e.gym?'あり':'なし',
+  const dist=has(e.dist)?e.dist:(num(e.run)+num(e.walk)||'');
+  const cols=[e.date,e.weight,dist,cardioLabel(e),e.steps,e.gym?'あり':'なし',
     p.back?'◯':'',p.shoulder?'◯':'',p.chest?'◯':'',p.legs?'◯':'',e.other,
-    e.breakfast,e.lunch,e.dinner,e.snack,e.kcal,e.protein,e.water,e.bowel,e.bowelMemo,
-    e.sleep,e.recovery,sc.total,lab,e.note];
+    e.kcal,e.protein,e.fat,e.carbs,e.water,e.bowel,e.bowelMemo,
+    e.sleep,e.recovery,sc.total,lab,e.lastSync,e.note];
   return cols.map(c=>c===undefined||c===null?'':c);
 }
 function copyRow(){
@@ -828,7 +931,7 @@ function copyRow(){
     ()=>{prompt('コピーできない場合は手動で:',tsv);});
 }
 function downloadCSV(){
-  const head=['日付','体重(kg)','ランニング(km)','ウォーキング(km)','歩数','ジム','背中','肩','胸','下半身','その他の運動','朝食','昼食','夕食','間食・外食','推定摂取カロリー(kcal)','推定たんぱく質(g)','水分(L)','便通','便通・体調メモ','睡眠(h)','回復度','今日の評価点','評価','備考'];
+  const head=['日付','体重(kg)','有酸素距離(km)','有酸素の種別','歩数','ジム','背中','肩','胸','下半身','その他の運動','摂取エネルギー(kcal)','たんぱく質(g)','脂質(g)','炭水化物(g)','水分(L)','便通','便通・体調メモ','睡眠(h)','回復度','今日の評価点','評価','最終連携','備考'];
   const rows=sortedEntries().map(e=>rowFor(e.date));
   const esc=c=>{c=String(c==null?'':c);return /[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c;};
   const csv='﻿'+[head,...rows].map(r=>r.map(esc).join(',')).join('\n');
@@ -850,10 +953,13 @@ function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMo
 function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3200);}
 function refreshHints(){
   const g=store.goals;
-  document.getElementById('stepGoalHint').textContent='(目標'+g.steps+')';
-  document.getElementById('kcalHint').textContent=g.kcalLo+'〜'+g.kcalHi;
-  document.getElementById('protHint').textContent='目標'+g.protein;
-  document.getElementById('waterGoalHint').textContent=g.water;
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('stepGoalHint','(目標'+num(g.steps).toLocaleString()+')');
+  set('kcalHint',g.kcalLo+'〜'+g.kcalHi);
+  set('protHint','目標'+g.protein);
+  set('fatHint','上限'+g.fat);
+  set('carbHint','上限'+g.carbs);
+  set('waterGoalHint',g.water);
 }
 function updateDateNote(){
   const d=document.getElementById('fDate').value;
@@ -873,14 +979,14 @@ function onDateChange(){
 function init(){
   document.getElementById('fDate').value=todayStr();
   document.getElementById('fDate').addEventListener('change',onDateChange);
-  refreshHints();updateKpi();updateDateNote();renderMissingDays();
-  // URLハッシュ（例 #d=2026-07-22;w=75.9;s=8900;r=3.5;o=…）＝1日の終わりの自動記録
+  refreshHints();updateDateNote();renderMissingDays();
+  // URLハッシュ（例 #w=75.4;s=11608;r=10.98;e=1666;p=111;f=38.5;c=228.9）＝連携からの自動記録
   if(location.hash&&location.hash.length>1){
     handleIncomingData(decodeURIComponent(location.hash.slice(1)));
   } else if(store.entries[todayStr()]){
     editEntry(todayStr());
   } else {
-    renderAutoSummary();
+    onFormInput();
   }
 }
 init();
