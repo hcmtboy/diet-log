@@ -75,6 +75,12 @@
   .btn:active{transform:translateY(1px)}
   .btn.ghost{background:#eef2f3;color:var(--accent);box-shadow:none}
   .btn.mini{padding:11px;font-size:14px}
+  .btn.save{
+    margin:24px 0 10px;padding:17px;font-size:16.5px;letter-spacing:.03em;
+    background:linear-gradient(135deg,#0f766e,#0d9488);
+    box-shadow:0 6px 20px rgba(15,118,110,.38);
+    display:flex;align-items:center;justify-content:center;gap:8px
+  }
 
   .score-badge{text-align:center;padding:6px 0}
   .score-badge .num{font-size:44px;font-weight:800;line-height:1}
@@ -292,7 +298,7 @@
       </div>
     </div>
 
-    <button class="btn" onclick="saveEntry()">入力を保存する</button>
+    <button class="btn save" onclick="saveEntry()"><svg class="i" style="margin:0" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>入力を保存する</button>
   </section>
 
   <!-- ============ 記録 ============ -->
