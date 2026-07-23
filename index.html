@@ -14,7 +14,7 @@
 <style>
   :root{
     --bg:#f4f6f8; --card:#ffffff; --ink:#1a2b32; --sub:#5b6b72; --line:#e2e8ea;
-    --accent:#0f766e; --accent2:#0d9488; --good:#16a34a; --warn:#d97706; --bad:#dc2626;
+    --accent:#0f766e; --accent2:#0d9488; --good:#0d9488; --warn:#d97706; --bad:#dc2626;
     --shadow:0 1px 3px rgba(15,40,50,.06),0 6px 18px rgba(15,40,50,.06);
     --radius:16px;
   }
@@ -107,7 +107,7 @@
   .insight-row .val{font-weight:700}
   .insight-row .val small{font-weight:600;color:var(--sub);font-size:11px}
   .pill{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
-  .pill.g{background:#dcfce7;color:#166534}
+  .pill.g{background:#d5f0ec;color:#0f766e}
   .pill.w{background:#fef3c7;color:#92400e}
   .pill.b{background:#fee2e2;color:#991b1b}
 
@@ -149,18 +149,24 @@
   .i-nav{width:22px;height:22px;margin:0;vertical-align:0}
   header.app h1 .i{width:1em;height:1em;margin-right:6px}
   .coach .t .i,.streak .i{margin-right:0}
-  .pg{display:grid;grid-template-columns:76px 1fr 80px;align-items:center;gap:8px;font-size:12px;padding:5px 0}
-  .pg .lab{color:var(--sub);font-weight:600}
-  .pg .track{height:8px;background:#eef2f3;border-radius:5px;overflow:hidden}
-  .pg .fill{height:100%;border-radius:5px;background:var(--accent2)}
-  .pg .fill.over{background:var(--warn)}
-  .pg .rest{text-align:right;font-weight:700;font-size:11px;color:var(--sub)}
-  .pg .rest.done{color:var(--good)}
-  .pg .rest.over{color:var(--warn)}
+  .prog-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;margin-top:14px}
+  .pg2.wide{grid-column:1/-1}
+  .pg2 .hd{display:flex;justify-content:space-between;align-items:center;font-size:11px}
+  .pg2 .lab{color:var(--sub);font-weight:700}
+  .pg2 .st{font-weight:700;display:inline-flex;align-items:center;gap:3px;color:var(--sub)}
+  .pg2 .st.done{color:var(--accent2)}
+  .pg2 .st.over{color:var(--warn)}
+  .pg2 .num{font-size:19px;font-weight:800;line-height:1.2;margin-top:1px}
+  .pg2 .num small{font-size:11px;color:var(--sub);font-weight:600}
+  .pg2 .track{height:8px;background:#eef2f3;border-radius:5px;overflow:hidden;margin-top:5px}
+  .pg2 .fill{height:100%;border-radius:5px;background:var(--accent2);transition:width .5s ease}
+  .pg2 .fill.over{background:var(--warn)}
+  .ach{text-align:center;font-size:12px;font-weight:700;color:var(--sub);margin-top:4px;display:flex;align-items:center;justify-content:center;gap:4px}
+  .ach.all{color:var(--accent)}
   .sync-note{font-size:11px;color:var(--sub);font-weight:600}
   .ring{position:relative;width:132px;margin:6px auto 0}
   .ring svg{width:100%;display:block;transform:rotate(-90deg)}
-  .ring circle{fill:none;stroke-width:9;stroke-linecap:round}
+  .ring circle{fill:none;stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset .7s ease,stroke .3s}
   .ring .bg{stroke:#eef2f3}
   .ring .ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
   .ring .n{font-size:36px;font-weight:800;line-height:1}
@@ -187,7 +193,8 @@
         <div class="ctr"><div class="n" id="scNum">0</div><div class="u">点</div></div>
       </div>
       <div class="ring-lab" id="scLab"></div>
-      <div id="progList" style="margin-top:12px"></div>
+      <div class="ach" id="achNote"></div>
+      <div id="progList" class="prog-grid"></div>
       <div class="coach" id="coachBox"></div>
       <button class="btn ghost mini" style="margin-top:11px" onclick="importFromHealth()"><svg class="i" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>いま取り込む</button>
     </div>
@@ -458,7 +465,7 @@ function calcScore(en){
   return {total,food,ex,water,bowel,ePt,protPt,fatPt,carbPt,stepPt,active};
 }
 function ratingLabel(t){
-  if(t>=88)return['非常に良い','#16a34a'];
+  if(t>=88)return['非常に良い','#0f766e'];
   if(t>=78)return['良い','#0d9488'];
   if(t>=65)return['まずまず','#d97706'];
   return['要調整','#dc2626'];
@@ -589,29 +596,43 @@ function currentDraft(){
     water:waterCur>0?waterCur:'',bowel:bowelPick};
 }
 function fmtRest(x,dec){return dec?Math.max(0,x).toFixed(dec):Math.round(Math.max(0,x)).toLocaleString();}
+function fmtV(x,dec){return dec?(Math.round(x*Math.pow(10,dec))/Math.pow(10,dec)).toFixed(dec):Math.round(x).toLocaleString();}
+const CHECK_SVG='<svg class="i" style="width:12px;height:12px;margin:0" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>';
+const AWARD_SVG='<svg class="i" style="width:14px;height:14px;margin:0" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.5 12.9 17 22l-5-3-5 3 1.5-9.1"/></svg>';
 function renderProgress(){
   const el=document.getElementById('progList');if(!el)return;
   const g=store.goals,e=currentDraft();
-  // [ラベル, 現在値, 目標, 単位, 小数桁, 上限型(少ないほど良い)]
+  const kcal=num(e.kcal);
+  const kcalOk=has(e.kcal)&&kcal>=g.kcalLo&&kcal<=g.kcalHi;
+  // [ラベル, 現在値, 目標, 単位, 小数桁, 上限型, 全幅, 達成判定]
   const rows=[
-    ['歩数',num(e.steps),g.steps,'歩',0,false],
-    ['水分',num(e.water),g.water,'L',1,false],
-    ['エネルギー',num(e.kcal),g.kcalHi,'kcal',0,true],
-    ['たんぱく質',num(e.protein),g.protein,'g',0,false],
-    ['脂質',num(e.fat),g.fat,'g',1,true],
-    ['炭水化物',num(e.carbs),g.carbs,'g',1,true]
+    ['エネルギー',kcal,g.kcalHi,'kcal',0,true,true,kcalOk],
+    ['歩数',num(e.steps),g.steps,'歩',0,false,false,null],
+    ['水分',num(e.water),g.water,'L',1,false,false,null],
+    ['たんぱく質',num(e.protein),g.protein,'g',0,false,false,null],
+    ['脂質',num(e.fat),g.fat,'g',1,true,false,null],
+    ['炭水化物',num(e.carbs),g.carbs,'g',1,true,false,null]
   ];
   el.innerHTML=rows.map(function(row){
-    const lab=row[0],v=row[1],goal=row[2],unit=row[3],dec=row[4],isCap=row[5];
+    const lab=row[0],v=row[1],goal=row[2],unit=row[3],dec=row[4],isCap=row[5],wide=row[6],okOverride=row[7];
     const pct=goal>0?Math.min(100,v/goal*100):0;
-    const over=isCap&&v>goal, done=!isCap&&v>0&&v>=goal;
-    let txt;
-    if(over)txt='+'+fmtRest(v-goal,dec)+unit;
-    else if(done)txt='達成';
-    else txt=(isCap?'のこり':'あと')+fmtRest(goal-v,dec)+unit;
-    return '<div class="pg"><span class="lab">'+lab+'</span><div class="track"><div class="fill'+(over?' over':'')+'" style="width:'+pct+'%"></div></div>'+
-      '<span class="rest '+(over?'over':done?'done':'')+'">'+txt+'</span></div>';
+    const over=isCap&&v>goal;
+    const done=okOverride!==null?okOverride:(!isCap&&v>0&&v>=goal);
+    let st;
+    if(done)st='<span class="st done">'+CHECK_SVG+'達成</span>';
+    else if(over)st='<span class="st over">+'+fmtRest(v-goal,dec)+unit+'</span>';
+    else st='<span class="st">'+(isCap?'のこり':'あと')+fmtRest(goal-v,dec)+unit+'</span>';
+    return '<div class="pg2'+(wide?' wide':'')+'"><div class="hd"><span class="lab">'+lab+'</span>'+st+'</div>'+
+      '<div class="num">'+fmtV(v,dec)+'<small> / '+(goal%1===0?Math.round(goal).toLocaleString():fmtV(goal,dec))+unit+'</small></div>'+
+      '<div class="track"><div class="fill'+(over?' over':'')+'" style="width:'+pct+'%"></div></div></div>';
   }).join('');
+  // 達成カウント（コントロール4科目：エネルギー・歩数・水分・たんぱく質）
+  const achieved=[kcalOk,num(e.steps)>=g.steps&&num(e.steps)>0,num(e.water)>=g.water&&num(e.water)>0,num(e.protein)>=g.protein&&num(e.protein)>0].filter(Boolean).length;
+  const an=document.getElementById('achNote');
+  if(an){
+    if(achieved>=4)an.className='ach all',an.innerHTML=AWARD_SVG+'全目標達成！文句なしの一日です';
+    else an.className='ach',an.innerHTML='目標達成 '+achieved+'/4'+(achieved>=2?'・いいペースです':'');
+  }
   const sn=document.getElementById('syncNote');if(sn)sn.textContent=curSync?('最終連携 '+curSync):'未連携';
 }
 // 食事カードのE/P/F/Cチップ
