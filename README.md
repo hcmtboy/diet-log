@@ -103,6 +103,11 @@ d=2026-07-22;w=75.9;s=8900;r=3.5;k=0;o=Nike Run Club 5km
 
 パース処理を変える場合、`applyHealthText()` と `handleIncomingData()` の両方の正規表現を合わせること。
 
+記録先日付のルール:
+- **1日の区切りは朝5時**（`todayStr()` が 0:00〜4:59 は前日の日付を返す）。深夜の手入力も、前日23:55連携がロックで日をまたいで遅延実行された場合も、自然に前日の記録に載る。
+- `d=` があればその日付を優先。
+- ホーム画面アプリが開きっぱなしのケースに備え、`visibilitychange` で復帰時に記録日が変わっていたら旧"今日"表示を新しい今日へ自動で切り替える（切り替わりは朝5時）。
+
 ---
 
 ## 6. 書き出し / バックアップ
@@ -168,7 +173,7 @@ git add index.html && git commit -m "update app" && git push
 ```js
 function doPost(e){
   const ss=SpreadsheetApp.getActiveSpreadsheet();
-  const sh=ss.getSheetByName('日別ログ')||ss.insertSheet('日別ログ');
+  const sh=ss.getSheetByName('アプリ自動ログ')||ss.insertSheet('アプリ自動ログ');
   const d=JSON.parse(e.postData.contents);
   if(sh.getLastRow()===0&&d.head)sh.appendRow(d.head);
   const upsert=row=>{
@@ -187,7 +192,7 @@ function doPost(e){
 
 3. 右上「デプロイ」→「新しいデプロイ」→ 種類「ウェブアプリ」→ 実行ユーザー「自分」／アクセスできるユーザー「**全員**」→ デプロイ（初回はアクセス承認が必要）
 4. 表示された**ウェブアプリURL**（`https://script.google.com/macros/s/…/exec`）をコピーし、アプリの設定タブ「Googleスプレッドシートに自動保存」に貼って保存
-5. 「全記録をいますぐ同期」を押し、シートに「日別ログ」タブと行が入れば完了
+5. 「全記録をいますぐ同期」を押し、シートに「アプリ自動ログ」タブと行が入れば完了（既存の「日別ログ」タブには書き込まない）
 
 仕様メモ：
 - ペイロードは `{type:'upsert', head:[…], row:[…]}` または `{type:'bulk', head:[…], rows:[[…],…]}`。列順は `CSV_HEAD`（`rowFor()`）と一致させること。列を変えたらCSV・GASどちらも影響する。

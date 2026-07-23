@@ -382,7 +382,7 @@
       <code>w=[体重];s=[歩数];r=[距離];e=[エネルギー];p=[たんぱく質];f=[脂質];c=[炭水化物]</code><br>
       最後に「URLを開く」で <code>[このアプリのURL]#[上のテキスト]</code> を開く。<br>
       <b>③自動化：</b>「オートメーション」→個人用→<b>時刻</b>→上のショートカットを実行。<b>12時・15時・18時・21時・23:55</b>の5回に設定すると、日中に開くたび「あと何をすればいいか」が最新の数字で分かります。「実行の前に尋ねる」はオフに。<br>
-      ※日付を省略すると、開いた日の記録として保存されます（`d=` を付ければその日付に入ります）。<br>
+      ※<b>1日は朝5時区切り</b>です。日付を省略した連携データはその時点の記録日に保存され、深夜0〜4時台は<b>前日の記録</b>になります（23:55の連携がロックで日をまたいでも正しく前日に入ります）。`d=` を付ければその日付に入ります。<br>
       ※ロック中は次にロック解除した時に記録されます。うまくいかない時は、ショートカットを手動実行するか、今日タブの「いま取り込む」でも取り込めます（クリップボード経由）。<br>
       ※手入力するのは<b>水分・便通</b>だけ。抜けた日は日付欄の「入力漏れの日」から遡って入力できます。
       </p>
@@ -589,7 +589,7 @@ function applyHealthText(txt,notify){
 // URL（#d=…;w=…）から来たデータ＝1日の終わりの自動記録。既存の食事等は保つ形でマージし自動保存
 function handleIncomingData(txt){
   let d=null,m; if(m=txt.match(/(?:^|[;\s])d\s*[=:]\s*(\d{4}[-\/]\d{1,2}[-\/]\d{1,2})/i))d=normDate(m[1]);
-  const target=d||todayStr();
+  const target=d||todayStr();   // todayStr()が朝5時区切りなので、深夜の遅延連携は自然に前日へ入る
   if(store.entries[target])editEntry(target);
   else{resetForm();document.getElementById('fDate').value=target;updateDateNote();}
   const got=applyHealthText(txt,false);
@@ -597,7 +597,9 @@ function handleIncomingData(txt){
   if(got){
     curSync=nowHM();               // 1日に何度でも取り込める。最終連携時刻を残す
     saveEntry(true);
-    showToast('連携しました（'+curSync+'）。今日の残りは上のバーで確認できます');
+    showToast('連携しました（'+target.slice(5).replace('-','/')+'分・'+curSync+'）');
+    // 前日分として保存した場合は、画面を今日に戻す
+    if(target!==todayStr())jumpDate(todayStr());
   }
 }
 /* ============ 今日の進捗（あと何をすればいいか） ============ */
@@ -1035,7 +1037,9 @@ function dl(text,name,type){
 }
 
 /* ============ ユーティリティ ============ */
-function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+// 1日の区切りは朝5時。0:00〜4:59は「前日の続き」として前日の記録日を返す
+// （深夜の手入力も、前日23:55連携の遅延実行も、自然に前日の記録に載る）
+function todayStr(){const d=new Date();if(d.getHours()<5)d.setDate(d.getDate()-1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3200);}
 function refreshHints(){
   const g=store.goals;
@@ -1050,7 +1054,9 @@ function refreshHints(){
 function updateDateNote(){
   const d=document.getElementById('fDate').value;
   const ex=store.entries[d];
-  document.getElementById('dateNote').innerHTML=ex?'この日は記録済みです。上書き保存できます。':'新規の記録です。';
+  const lateNight=new Date().getHours()<5&&d===todayStr();
+  document.getElementById('dateNote').innerHTML=(ex?'この日は記録済みです。上書き保存できます。':'新規の記録です。')+
+    (lateNight?'<br><b>深夜0〜4時台は前日の続き</b>として扱います（1日は朝5時区切り）':'');
   // weight note
   const g=store.goals;const av=avgWeight7(d||todayStr());
   document.getElementById('weightNote').innerHTML=av?`直近7日平均 <b>${av.toFixed(2)}kg</b>・目標まで <b>${(av-g.targetWeight).toFixed(1)}kg</b>`:'';
@@ -1076,6 +1082,18 @@ function init(){
   }
   retryPending();   // 前回オフライン等で送れなかった分をシートへ再送
 }
+// ホーム画面アプリは前日から開きっぱなしになりがち。
+// 復帰時に日付が変わっていたら、旧"今日"を表示したままの画面を新しい今日へ切り替える
+let appToday=todayStr();
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState!=='visible')return;
+  const t=todayStr();
+  if(t===appToday)return;
+  const cur=document.getElementById('fDate').value;
+  if(cur===appToday||!cur)jumpDate(t);   // 過去日を意図的に編集中の場合は触らない
+  appToday=t;
+  renderMissingDays();
+});
 init();
 </script>
 </body>
