@@ -10,7 +10,7 @@
 ## 1. 基本方針（触るときの前提）
 
 - **単一HTMLファイル**（`index.html`）で完結。CSS・JSはすべてインライン。**外部ライブラリ/CDNは使わない**（オフライン動作とプライバシーのため）。
-- **データは端末内のみ**。`localStorage` にだけ保存し、サーバーへは一切送信しない。→ リポジトリを公開しても個人データは漏れない。
+- **データの主保存先は端末内（`localStorage`）**。加えて、ユーザーが設定タブに自分のGoogle Apps ScriptのウェブアプリURLを貼った場合のみ、保存のたびにそのGAS経由で**ユーザー自身のGoogleスプレッドシートへ自動書き込み**する（日付で上書き）。GASのURLやスプレッドシートIDはコードに埋め込まない（公開リポジトリのため）。第三者のサーバーには送信しない。
 - **体重推移グラフは自前のcanvas描画**（Chart.js等は使わない）。
 - PWA対応済み（`apple-mobile-web-app-capable`、`apple-touch-icon` はdata URIのダンベルアイコン、standalone表示、アプリ名「体づくりログ」）。
 - 対象は iPhone をメイン端末とする1人運用。クロス端末の自動同期はしていない（バックアップはJSON書き出しで対応）。
@@ -158,7 +158,42 @@ git add index.html && git commit -m "update app" && git push
 
 ## 9. トレーナー側とのデータ橋渡し
 
-アプリの記録は端末内のみ。トレーナー（別チャット）が最新データでレビューできるよう、**週1回**を目安に「設定タブの行コピー or CSV書き出し」で Googleスプレッドシートへ反映する運用。スプレッドシートのURLは公開リポジトリに載せず、各自の共有場所（チャット等）で管理する。
+スプレッドシート自動保存（下記）を設定していれば、保存のたびに日別ログシートへ自動反映されるので、トレーナー（別チャット）は常に最新データでレビューできる。未設定の場合は「設定タブの行コピー or CSV書き出し」で手動反映。スプレッドシートのURLやGASのURLは公開リポジトリに載せず、各自の共有場所（チャット等）で管理する。
+
+### スプレッドシート自動保存のセットアップ（Google Apps Script）
+
+1. 対象のGoogleスプレッドシートを開く → メニュー「拡張機能」→「Apps Script」
+2. 下記コードを貼り付けて保存：
+
+```js
+function doPost(e){
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const sh=ss.getSheetByName('日別ログ')||ss.insertSheet('日別ログ');
+  const d=JSON.parse(e.postData.contents);
+  if(sh.getLastRow()===0&&d.head)sh.appendRow(d.head);
+  const upsert=row=>{
+    const n=Math.max(sh.getLastRow(),1);
+    const dates=sh.getRange(1,1,n,1).getValues().flat().map(String);
+    const i=dates.indexOf(String(row[0]));
+    if(i>=0)sh.getRange(i+1,1,1,row.length).setValues([row]);
+    else sh.appendRow(row);
+  };
+  if(d.type==='bulk')(d.rows||[]).forEach(upsert);
+  else if(d.row)upsert(d.row);
+  return ContentService.createTextOutput(JSON.stringify({ok:true}))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+```
+
+3. 右上「デプロイ」→「新しいデプロイ」→ 種類「ウェブアプリ」→ 実行ユーザー「自分」／アクセスできるユーザー「**全員**」→ デプロイ（初回はアクセス承認が必要）
+4. 表示された**ウェブアプリURL**（`https://script.google.com/macros/s/…/exec`）をコピーし、アプリの設定タブ「Googleスプレッドシートに自動保存」に貼って保存
+5. 「全記録をいますぐ同期」を押し、シートに「日別ログ」タブと行が入れば完了
+
+仕様メモ：
+- ペイロードは `{type:'upsert', head:[…], row:[…]}` または `{type:'bulk', head:[…], rows:[[…],…]}`。列順は `CSV_HEAD`（`rowFor()`）と一致させること。列を変えたらCSV・GASどちらも影響する。
+- アプリ側は保存のたびに `syncEntry(date)` を非同期で呼ぶ。失敗分は `store.sync.pending` に溜まり、起動時 `retryPending()` で再送。
+- URLは `store.sync.url`（localStorage内）のみに保持。コードへのハードコード禁止。
+- GASのURLを知っている人はこのシートに書き込めるため、URLは第三者に共有しないこと。
 
 ---
 
@@ -179,7 +214,7 @@ git add index.html && git commit -m "update app" && git push
 ## 変更時のチェックリスト
 
 - [ ] 外部ライブラリ/CDNを増やしていない（オフライン維持）
-- [ ] localStorage 以外にデータを送っていない
+- [ ] ユーザー自身が設定したGAS以外にデータを送っていない（GASのURL・シートIDをコードに埋め込んでいない）
 - [ ] スコア/目標/コーチ文言の変更はトレーナー方針に沿っている
 - [ ] 取り込みペイロードのキーを変えたら `applyHealthText` と `handleIncomingData` 両方を更新
 - [ ] `index.html` のファイル名・ルート配置を維持（Pages要件）

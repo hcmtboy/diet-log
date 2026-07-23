@@ -356,7 +356,17 @@
     </div>
 
     <div class="card">
-      <h2><span class="dot"></span>スプレッドシートに書き出す</h2>
+      <h2><span class="dot"></span>Googleスプレッドシートに自動保存</h2>
+      <p class="muted">連携URL（Apps ScriptのウェブアプリURL）を設定すると、保存のたびに自動であなたのスプレッドシートへ書き込まれます（日付ごとに上書き）。設定方法はREADME参照。</p>
+      <div class="field"><label class="f">連携URL</label><input type="url" id="syncUrl" placeholder="https://script.google.com/macros/s/…/exec"></div>
+      <button class="btn mini" onclick="saveSyncUrl()">連携URLを保存</button>
+      <div style="height:8px"></div>
+      <button class="btn ghost mini" onclick="syncAll()"><svg class="i" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6"/></svg>全記録をいますぐ同期</button>
+      <div class="goal-mini" id="syncStatus" style="margin-top:8px"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="dot"></span>スプレッドシートに書き出す（手動）</h2>
       <p class="muted">選んだ日の1行をコピーして、Googleスプレッドシートの日別ログに貼り付けできます（タブ区切り＝そのまま横に並びます）。</p>
       <div class="field"><label class="f">対象の日</label><input type="date" id="expDate"></div>
       <button class="btn ghost mini" onclick="copyRow()"><svg class="i" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>この日の行をコピー</button>
@@ -420,6 +430,7 @@ function load(){
 function migrate(s){
   if(!s||typeof s!=='object'||!s.entries)return seed();
   s.goals=Object.assign({},DEFAULT_GOALS,s.goals||{});
+  s.sync=Object.assign({url:'',last:'',pending:{}},s.sync||{});
   Object.values(s.entries).forEach(e=>{
     if(!e)return;
     if(!has(e.dist)&&(has(e.run)||has(e.walk)))e.dist=Math.round((num(e.run)+num(e.walk))*100)/100;
@@ -435,7 +446,7 @@ function has(x){return x!==''&&x!==null&&x!==undefined;}
 
 /* ============ 初期データ（目標値のみ・記録は空スタート） ============ */
 function seed(){
-  return {goals:Object.assign({},DEFAULT_GOALS),entries:{}};
+  return {goals:Object.assign({},DEFAULT_GOALS),entries:{},sync:{url:'',last:'',pending:{}}};
 }
 
 /* ============ スコア計算 ============ */
@@ -723,6 +734,7 @@ function saveEntry(silent){
   store.entries[en.date]=en;persist();
   renderMissingDays();onFormInput();
   if(!silent)showToast('保存しました');
+  syncEntry(en.date);   // シート連携が設定済みなら自動送信（非同期・失敗時は保留）
 }
 
 /* ============ コーチのひとこと（保存後） ============ */
@@ -924,6 +936,8 @@ function fillGoals(){
   gWeight.value=g.targetWeight;gSteps.value=g.steps;gProt.value=g.protein;gWater.value=g.water;
   gKcalLo.value=g.kcalLo;gKcalHi.value=g.kcalHi;gFat.value=g.fat;gCarb.value=g.carbs;gGym.value=g.gym;
   document.getElementById('expDate').value=todayStr();
+  document.getElementById('syncUrl').value=(store.sync&&store.sync.url)||'';
+  renderSyncStatus();
 }
 function saveGoals(){
   store.goals={targetWeight:num(gWeight.value),steps:num(gSteps.value),protein:num(gProt.value),
@@ -951,13 +965,64 @@ function copyRow(){
   navigator.clipboard.writeText(tsv).then(()=>showToast('1行コピーしました。スプレッドシートに貼り付けてください'),
     ()=>{prompt('コピーできない場合は手動で:',tsv);});
 }
+const CSV_HEAD=['日付','体重(kg)','有酸素距離(km)','有酸素の種別','歩数','ジム','背中','肩','胸','下半身','その他の運動','摂取エネルギー(kcal)','たんぱく質(g)','脂質(g)','炭水化物(g)','水分(L)','便通','便通・体調メモ','睡眠(h)','回復度','今日の評価点','評価','最終連携','備考'];
 function downloadCSV(){
-  const head=['日付','体重(kg)','有酸素距離(km)','有酸素の種別','歩数','ジム','背中','肩','胸','下半身','その他の運動','摂取エネルギー(kcal)','たんぱく質(g)','脂質(g)','炭水化物(g)','水分(L)','便通','便通・体調メモ','睡眠(h)','回復度','今日の評価点','評価','最終連携','備考'];
+  const head=CSV_HEAD;
   const rows=sortedEntries().map(e=>rowFor(e.date));
   const esc=c=>{c=String(c==null?'':c);return /[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c;};
   const csv='﻿'+[head,...rows].map(r=>r.map(esc).join(',')).join('\n');
   dl(csv,'diet-log.csv','text/csv');
 }
+/* ============ Googleスプレッドシート自動保存（Apps Script経由） ============ */
+// 送信先はユーザー自身が設定タブに貼ったGASのURLのみ。未設定なら何も送らない。
+function saveSyncUrl(){
+  const u=document.getElementById('syncUrl').value.trim();
+  if(u&&!/^https:\/\/script\.google\.com\//.test(u)){showToast('Apps ScriptのウェブアプリURL（script.google.com）を貼ってください');return;}
+  store.sync.url=u;persist();renderSyncStatus();
+  showToast(u?'連携URLを保存しました。「全記録をいますぐ同期」で動作確認を':'連携を解除しました');
+}
+async function pushToSheet(payload){
+  const url=(store.sync&&store.sync.url)||'';
+  if(!url)return {ok:false,skip:true};
+  try{
+    const res=await fetch(url,{method:'POST',body:JSON.stringify(payload)});
+    if(!res.ok)return {ok:false};
+    const j=await res.json().catch(()=>({}));
+    return {ok:j.ok!==false};
+  }catch(e){return {ok:false};}
+}
+// 1日分をシートへ（日付で上書き）。失敗したら保留に積んで後で再送
+async function syncEntry(date){
+  const row=rowFor(date);if(!row)return;
+  const r=await pushToSheet({type:'upsert',head:CSV_HEAD,row:row});
+  if(r.skip)return;
+  store.sync.pending=store.sync.pending||{};
+  if(r.ok){delete store.sync.pending[date];store.sync.last=date+' '+nowHM();}
+  else store.sync.pending[date]=1;
+  persist();renderSyncStatus();
+  if(!r.ok)showToast('シートへの同期に失敗しました（オフライン？）。次回保存時に再送します');
+}
+async function syncAll(){
+  if(!store.sync.url){showToast('先に連携URLを設定してください');return;}
+  const rows=sortedEntries().map(e=>rowFor(e.date)).filter(Boolean);
+  if(!rows.length){showToast('同期する記録がありません');return;}
+  showToast('同期中…');
+  const r=await pushToSheet({type:'bulk',head:CSV_HEAD,rows:rows});
+  if(r.ok){store.sync.pending={};store.sync.last='全件 '+nowHM();persist();renderSyncStatus();showToast(rows.length+'日分をシートに同期しました');}
+  else showToast('同期に失敗しました。URLとデプロイ設定（全員アクセス可）を確認してください');
+}
+// 前回失敗した分を静かに再送
+async function retryPending(){
+  const p=store.sync&&store.sync.pending?Object.keys(store.sync.pending):[];
+  for(const d of p)await syncEntry(d);
+}
+function renderSyncStatus(){
+  const el=document.getElementById('syncStatus');if(!el)return;
+  if(!store.sync.url){el.textContent='未設定（設定するまでデータは端末内のみに保存されます）';return;}
+  const pend=Object.keys(store.sync.pending||{}).length;
+  el.innerHTML='連携中'+(store.sync.last?'・最終同期 <b>'+store.sync.last+'</b>':'')+(pend?'・未送信 '+pend+'日分':'');
+}
+
 function exportJSON(){dl(JSON.stringify(store,null,2),'diet-backup.json','application/json');}
 function importJSON(ev){
   const f=ev.target.files[0];if(!f)return;const rd=new FileReader();
@@ -1009,6 +1074,7 @@ function init(){
   } else {
     onFormInput();
   }
+  retryPending();   // 前回オフライン等で送れなかった分をシートへ再送
 }
 init();
 </script>
